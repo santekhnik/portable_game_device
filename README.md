@@ -13,7 +13,7 @@
 
 1. git branch "Branch_name"
 2. Do things you have to do
-3. Commit and push
+3. Commit and 'git push --set-upstream origin "Branch_name"'
 4. Open github/repo/codes
 5. Press button "Create pull request"
 6. Choose branches
