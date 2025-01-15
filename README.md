@@ -12,10 +12,11 @@
 ### How to pull request:
 
 1. git branch "Branch_name"
-2. Do things you have to do
-3. Commit and 'git push'
-4. Open github/repo/pull_requests
-5. Choose branches
-6. Ensure that everything is OK
-7. Press button "Create pull request"
-8. Create pull request
+2. git switch "Branch_name"
+3. Do things you have to do
+4. Commit and 'git push'
+5. Open github/repo/pull_requests
+6. Choose branches
+7. Ensure that everything is OK
+8. Press button "Create pull request"
+9. Create pull request
