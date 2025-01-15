@@ -1,0 +1,23 @@
+Number of pong: 0x14
+______________________________________________________________________________________
+Menu:
+Requirements for start:
+PC->STM |0x01|0x00|BCC| for start
+STM->PC |0x01|0x0FF|0xFF| incorrect start BCC tries to retry for correct start BCC
+STM->PC |0x01|num|0x14|...|0xXX| (num - number of games in STM, XX-number of last game from list) if our reqirement correct we get number of games in STM
+
+Game selection menu:
+PC->STM |0x02|0xXX|0|0|BCC| PC choosing game (XX-number of game)
+STM->PC |0x02|0xXX|X_S|Y_S|BCC| X_S/Y_S - size of map
+STM->PC |0x02|0xFF|0xFF| if incorrect BCC we retry for correct
+STM->PC |0x02|0xDD|0xFF|| if incorrect game had chosen - we retry chose correct game
+______________________________________________________________________________________
+The game:
+Coordinates of objectives (player plate, ball):
+STM->PC |0x03|B_X|B_Y|P_X1|P_Y1|P_X2|P_Y2|BCC| B_X/B_Y - ball coordinates, P_X/P_Y - player coordinates, 1/2 - point coordinates of player plate
+if we get incorrect BCC of objectives we skip because of transmitter
+Controls:
+PC->STM |0x04|key|BCC| key - control key from keyboard, if ESC -> game paused/end of game
+Game over:
+STM->PC |0x05|0|0|0|BCC| return the ball to start position
+______________________________________________________________________________________
