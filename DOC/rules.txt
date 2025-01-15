@@ -1,0 +1,72 @@
+### 1. Goal of the Game
+
+The player controls a paddle to bounce the ball and score as many points as possible.  
+A point is awarded when the ball bounces off the player's paddle.
+
+---
+
+### 2. Equipment
+
+The game is displayed on a screen connected to an STM system.  
+The paddle is controlled using the left and right arrow keys on the keyboard.  
+The ball moves automatically.
+
+---
+
+### 3. Controls
+
+**Player 1:**  
+- Left arrow: Moves the paddle to the left.  
+- Right arrow: Moves the paddle to the right.  
+
+The ball starts at the center of the field.  
+It moves at an angle and changes direction when colliding with the paddle or the walls (left and right).  
+If the ball passes beyond the paddle, the game restarts with a pause, and the ball is reset to the center. The game resumes only when the player moves the paddle.
+
+---
+
+### 4. Paddle Movement
+
+The paddle can move only horizontally within the boundaries of the playing field, constrained to the **x-axis**, while the **y-axis** remains static.  
+If a key is held down, the paddle continues moving in the corresponding direction.
+
+---
+
+### 5. Scoring
+
+The game continues indefinitely until the player misses the ball.  
+Points are awarded for each successful bounce of the ball off the paddle, with one bounce equaling 1 point.
+
+---
+
+### 6. Collisions
+
+The ball changes direction upon collision:  
+- **With the paddle**: It bounces off at an angle depending on the point of contact.  
+- **With the left or right walls**: It changes both vertical and horizontal trajectories.
+
+---
+
+### 7. Pause and Reset
+
+- **Pause**: Pressing the "P" key pauses the game.  
+- **Reset**: Pressing the "R" key resets the game to its initial state.  
+- **Exit to Menu**: Pressing the "Esc" key ends the game and exits to the menu.
+
+---
+
+### 8. Additional Rules (Optional)
+
+- Every 10 points, the ball's speed increases automatically.  
+- Special effects or bonuses can be added to make the game more challenging.
+
+---
+
+### 9. Game Field and Settings
+
+- **Field size**: 40 x 20 pixels.  
+- **Ball size**: 1 pixel.  
+- **Paddle size**: 4 pixels.  
+- **Ball speed**: Initially 2 pixels per second, increasing by 1 pixel per second over time.  
+
+--- 
