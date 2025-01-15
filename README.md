@@ -1,5 +1,11 @@
 # portable_game_device
 
+## Rules
+1. DO NOT MAIN FORCE PUSH
+2. All push requests Finik observes
+3. If you pushed main - you must say about it and we do uncommit
+4. Only README.md can be main pushed and only by Finik
+
 ### How to commit and push
 
 0. 'git pull' for updating repo
