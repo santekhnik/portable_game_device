@@ -2,10 +2,11 @@
 
 ## Rules
 
-1. DO NOT MAIN FORCE PUSH
-2. All push requests Finik observes
-3. If you pushed main - you must say about it and we do uncommit
-4. Only README.md can be main pushed and only by Finik
+1. All push requests Finik observes
+2. README.md can be changed only by Finik
+3. One task - one branch
+4. You can't push to main branch by GitHub rules, so watch to your branches to prevent errors
+5. If task needs changes from two people in one file - that will be conflicts, so do it alternately
 
 ### How to commit and push
 
@@ -43,3 +44,12 @@
 6. Ensure that everything is OK
 7. Press button "Create pull request"
 8. Create pull request
+
+### How to update main branch locally
+1. Get everything done in your branch
+2. Push this changes to github
+3. Create pull request
+4. Wait until someone approve your request
+5. In git switch to main branch by "git switch main"
+6. Merge branch with main by "git merge 'branch_name'"
+7. Delete branch by inctructions if you are done
