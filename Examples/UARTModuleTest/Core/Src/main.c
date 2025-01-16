@@ -54,32 +54,23 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 
-int CompareArr(uint8_t a[], uint8_t b[0], int num){
-	
-	for(int cycle=0; cycle < num ; cycle++){
-		
-		if(a[cycle] != b[cycle]){ return 0;}
-				
-	}
-	
-	return 1;
-	
-	
-	
-}	
+int CompareArr(uint8_t a[], uint8_t b[], int num){
+    for(int cycle=0; cycle < num ; cycle++){
+        if(a[cycle] != b[cycle]){ return 0;}
+    }
+    return 1;
+}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	
-	if(CompareArr(msg_rx, password, 10)){
-			HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Password Correct!"), 0xFFFF);
-
-	}
-	else{
-			HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Wrong Password\n\r"), 0xFFFF);
-			HAL_UART_Receive_IT(&huart1,msg_rx,10);
-	}
-	
-	
+    // ?????????? ????????? ?????? ? ?????????? ???????
+    if(CompareArr(msg_rx, password, 10)){
+        HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Password Correct!\n\r"), 0xFFFF);
+    }
+    else{
+        HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Wrong Password\n\r"), 0xFFFF);
+    }
+    // ?????? ?????????? ??????? UART
+    HAL_UART_Receive_IT(&huart1,msg_rx,10);
 }
 
 /**
@@ -90,17 +81,13 @@ int main(void)
 {
   HAL_Init();
   SystemClock_Config();
-
   MX_GPIO_Init();
   MX_USART1_UART_Init();
-
-		HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Hello World. Enter The Password\n\r"), 0xFFFF);
-    HAL_UART_Receive_IT(&huart1,msg_rx,10);
-
+  HAL_UART_Receive_IT(&huart1, msg_rx, 10);
 
   while (1)
   {
-	  
+    
   }
 }
 
