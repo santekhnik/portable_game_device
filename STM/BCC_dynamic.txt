@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+unsigned int calculateBCC(const unsigned int* data, int length){
+    unsigned int checksum = 0;
+    for (int i = 0; i < length; i++)
+    {
+        checksum ^= data[i];
+    }
+    return checksum;
+}
+
+int main(){
+    int n;
+    printf("Enter the number of elements: ");
+    scanf_s("%d", &n);
+    if (n <= 0){
+        printf("Invalid number of elements.\n");
+        return 1;
+    }
+    unsigned int* arr = (unsigned int*)malloc(n * sizeof(unsigned int));
+    if (arr == NULL)
+    {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+    printf("Enter %d numbers:\n", n);
+    for (int i = 0; i < n; i++)
+    {
+        scanf_s("%u", &arr[i]);
+    }
+    printf("checksum: %u\n", calculateBCC(arr, n));
+    free(arr);
+    return 0;
+}
+#include <stdio.h>
+#include <stdlib.h>
+
+unsigned int calculateBCC(const unsigned int* data, int length){
+    unsigned int checksum = 0;
+    for (int i = 0; i < length; i++)
+    {
+        checksum ^= data[i];
+    }
+    return checksum;
+}
+
+int main(){
+    int n;
+    printf("Enter the number of elements: ");
+    scanf_s("%d", &n);
+    if (n <= 0){
+        printf("Invalid number of elements.\n");
+        return 1;
+    }
+    unsigned int* arr = (unsigned int*)malloc(n * sizeof(unsigned int));
+    if (arr == NULL)
+    {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+    printf("Enter %d numbers:\n", n);
+    for (int i = 0; i < n; i++)
+    {
+        scanf_s("%u", &arr[i]);
+    }
+    printf("checksum: %u\n", calculateBCC(arr, n));
+    free(arr);
+    return 0;
+}
