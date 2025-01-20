@@ -56,6 +56,12 @@ def main():
         if keyboard.is_pressed('d'):
             command = 'd'
             ser.write(command.encode())
+        if keyboard.is_pressed('r'):
+            command = 'r'
+            ser.write(command.encode())
+        if keyboard.is_pressed('p'):
+            command = 'p'
+            ser.write(command.encode())
         time.sleep(0.05)  # Маленька пауза для плавної гри
 
 
