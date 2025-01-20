@@ -1,5 +1,8 @@
 import pygame
 import sys
+import random
+import serial.tools.list_ports
+import time
 
 # Initialize pygame
 pygame.init()
@@ -14,6 +17,8 @@ FRAME_X, FRAME_Y = SCREEN_WIDTH // 2 - GAME_WIDTH * SCALE // 2, SCREEN_HEIGHT //
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 
 # Font setup
 pygame.font.init()
@@ -35,20 +40,181 @@ paused = False
 
 # Variables
 selected_port = 0
-ports = ["COM1", "COM2", "COM3"]
+port_list = []
+ports = serial.tools.list_ports.comports()
+for port in ports:
+    port_list.append(port.device)
 selected_game = 0
-games = ["Pong", "Tetris (Coming soon)", "Snake (Coming soon)"]
+games = ["Pong", "Tetris (Coming soon)", "Snake"]
 
-# Pong game variables
-ball_pos = [FRAME_X + GAME_WIDTH * SCALE // 2, FRAME_Y + GAME_HEIGHT * SCALE // 2]
-ball_speed = [0.1, 0.1]
-paddle_width, paddle_height = 80, 7
-paddle_pos = [FRAME_X + GAME_WIDTH * SCALE // 2 - paddle_width // 2, FRAME_Y + GAME_HEIGHT * SCALE - paddle_height - 10]
-paddle_speed = 0.5
-score = 0
+# Define the structure of a game
+class Game:
+    def __init__(self, name):
+        self.name = name
+
+    def start(self):
+        pass
+
+    def update(self):
+        pass
+
+    def draw(self):
+        pass
+
+# Define the Pong game as a subclass of Game
+class Pong(Game):
+    def __init__(self):
+        super().__init__("Pong")
+        self.ball_pos = [FRAME_X + GAME_WIDTH * SCALE // 2, FRAME_Y + GAME_HEIGHT * SCALE // 2]
+        self.ball_speed = [0.1, 0.1]
+        self.paddle_width, self.paddle_height = 80, 7
+        self.paddle_pos = [FRAME_X + GAME_WIDTH * SCALE // 2 - self.paddle_width // 2, FRAME_Y + GAME_HEIGHT * SCALE - self.paddle_height - 10]
+        self.paddle_speed = 0.5
+        self.score = 0
+
+    def start(self):
+        self.ball_pos = [FRAME_X + GAME_WIDTH * SCALE // 2, FRAME_Y + GAME_HEIGHT * SCALE // 2]
+        self.ball_speed = [0.1, 0.1]
+        self.paddle_pos = [FRAME_X + GAME_WIDTH * SCALE // 2 - self.paddle_width // 2, FRAME_Y + GAME_HEIGHT * SCALE - self.paddle_height - 10]
+        self.score = 0
+
+    def update(self, keys):
+        # Move paddle
+        if keys[pygame.K_LEFT] and self.paddle_pos[0] > FRAME_X:
+            self.paddle_pos[0] -= self.paddle_speed
+        if keys[pygame.K_RIGHT] and self.paddle_pos[0] < FRAME_X + GAME_WIDTH * SCALE - self.paddle_width:
+            self.paddle_pos[0] += self.paddle_speed
+
+        # Update ball position
+        self.ball_pos[0] += self.ball_speed[0]
+        self.ball_pos[1] += self.ball_speed[1]
+
+        # Ball collision with walls
+        if self.ball_pos[0] <= FRAME_X or self.ball_pos[0] >= FRAME_X + GAME_WIDTH * SCALE:
+            self.ball_speed[0] = -self.ball_speed[0]
+        if self.ball_pos[1] <= FRAME_Y:
+            self.ball_speed[1] = -self.ball_speed[1]
+
+        # Ball collision with paddle
+        if self.paddle_pos[1] <= self.ball_pos[1] <= self.paddle_pos[1] + self.paddle_height and \
+                self.paddle_pos[0] <= self.ball_pos[0] <= self.paddle_pos[0] + self.paddle_width:
+            self.ball_speed[1] = -self.ball_speed[1]
+            self.score += 1
+
+        # Ball goes out of bounds
+        if self.ball_pos[1] > FRAME_Y + GAME_HEIGHT * SCALE:
+            print(f"Game Over! Your score: {self.score}")
+            self.start()
+
+    def draw(self):
+        # Draw paddle and ball
+        pygame.draw.rect(screen, WHITE, (self.paddle_pos[0], self.paddle_pos[1], self.paddle_width, self.paddle_height))
+        pygame.draw.circle(screen, WHITE, (int(self.ball_pos[0]), int(self.ball_pos[1])), 10)
+
+        # Display score
+        score_text = FONT.render(f"Score: {self.score}", True, WHITE)
+        screen.blit(score_text, (10, 10))
+
+        # Controls info
+        controls = ["ESC - exit", "← - move to the left", "→ - move to the right", "R - restart", "P - pause"]
+        for i, control in enumerate(controls):
+            control_text = SMALL_FONT.render(control, True, WHITE)
+            screen.blit(control_text, (10, SCREEN_HEIGHT - 100 + i * 20))
+
+        # Draw game area
+        pygame.draw.rect(screen, WHITE, (FRAME_X, FRAME_Y, GAME_WIDTH * SCALE, GAME_HEIGHT * SCALE), 5)
+
+# Define the Snake game as a subclass of Game
+class Snake(Game):
+    def __init__(self):
+        super().__init__("Snake")
+        self.snake_pos = [[SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]]
+        self.snake_dir = [0, -SCALE]  # Moving up initially
+        self.food_pos = [random.randrange(FRAME_X, FRAME_X + GAME_WIDTH * SCALE, SCALE),
+                         random.randrange(FRAME_Y, FRAME_Y + GAME_HEIGHT * SCALE, SCALE)]
+        self.food_spawn = True
+        self.score = 0
+        self.last_move_time = time.time()
+        self.move_interval = 0.1  # Interval between moves in seconds
+
+    def start(self):
+        self.snake_pos = [[SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]]
+        self.snake_dir = [0, -SCALE]
+        self.food_pos = [random.randrange(FRAME_X, FRAME_X + GAME_WIDTH * SCALE, SCALE),
+                         random.randrange(FRAME_Y, FRAME_Y + GAME_HEIGHT * SCALE, SCALE)]
+        self.food_spawn = True
+        self.score = 0
+        self.last_move_time = time.time()
+
+    def update(self, keys):
+        current_time = time.time()
+        if current_time - self.last_move_time >= self.move_interval:
+            # Control the snake's direction
+            if keys[pygame.K_LEFT]:
+                self.snake_dir = [-SCALE, 0]
+            elif keys[pygame.K_RIGHT]:
+                self.snake_dir = [SCALE, 0]
+            elif keys[pygame.K_UP]:
+                self.snake_dir = [0, -SCALE]
+            elif keys[pygame.K_DOWN]:
+                self.snake_dir = [0, SCALE]
+
+            # Move snake
+            new_head = [self.snake_pos[0][0] + self.snake_dir[0], self.snake_pos[0][1] + self.snake_dir[1]]
+            self.snake_pos.insert(0, new_head)
+
+            # Check if snake eats food
+            if new_head == self.food_pos:
+                self.food_spawn = False
+                self.score += 1
+            else:
+                self.snake_pos.pop()
+
+            # Spawn new food if needed
+            if not self.food_spawn:
+                self.food_pos = [random.randrange(FRAME_X, FRAME_X + GAME_WIDTH * SCALE, SCALE),
+                                 random.randrange(FRAME_Y, FRAME_Y + GAME_HEIGHT * SCALE, SCALE)]
+                self.food_spawn = True
+
+            # Check if snake hits the walls or itself
+            if new_head[0] < FRAME_X or new_head[0] >= FRAME_X + GAME_WIDTH * SCALE or \
+                    new_head[1] < FRAME_Y or new_head[1] >= FRAME_Y + GAME_HEIGHT * SCALE or \
+                    new_head in self.snake_pos[1:]:
+                print(f"Game Over! Your score: {self.score}")
+                self.start()
+
+            self.last_move_time = current_time
+
+    def draw(self):
+        # Draw the snake
+        for segment in self.snake_pos:
+            pygame.draw.rect(screen, WHITE, pygame.Rect(segment[0], segment[1], SCALE, SCALE))
+
+        # Draw the food
+        pygame.draw.rect(screen, RED, pygame.Rect(self.food_pos[0], self.food_pos[1], SCALE, SCALE))
+
+        # Display score
+        score_text = FONT.render(f"Score: {self.score}", True, WHITE)
+        screen.blit(score_text, (10, 10))
+
+        # Controls info
+        controls = ["ESC - exit", "← - move left", "→ - move right", "↑ - move up", "↓ - move down", "R - restart", "P - pause"]
+        for i, control in enumerate(controls):
+            control_text = SMALL_FONT.render(control, True, WHITE)
+            screen.blit(control_text, (10, SCREEN_HEIGHT - 100 + i * 20))
+
+        # Draw game area
+        pygame.draw.rect(screen, WHITE, (FRAME_X, FRAME_Y, GAME_WIDTH * SCALE, GAME_HEIGHT * SCALE), 5)
 
 # Game loop
 running = True
+games_dict = {
+    0: Pong(),
+    2: Snake(),
+    # You can add other games like Tetris here
+}
+
+current_game = None
 while running:
     screen.fill(BLACK)
 
@@ -70,7 +236,9 @@ while running:
                 elif event.key == pygame.K_DOWN:
                     selected_game = (selected_game + 1) % len(games)
                 elif event.key == pygame.K_RETURN:
-                    if selected_game == 0:  # Pong
+                    current_game = games_dict.get(selected_game)
+                    if current_game:
+                        current_game.start()
                         state = STATE_GAME
                     else:
                         print("Error: Game not implemented")
@@ -81,60 +249,13 @@ while running:
                 elif event.key == pygame.K_p:
                     paused = not paused
                 elif event.key == pygame.K_r:
-                    # Restart the game
-                    ball_pos = [FRAME_X + GAME_WIDTH * SCALE // 2, FRAME_Y + GAME_HEIGHT * SCALE // 2]
-                    ball_speed = [0.05, 0.05]
-                    paddle_pos = [FRAME_X + GAME_WIDTH * SCALE // 2 - paddle_width // 2, FRAME_Y + GAME_HEIGHT * SCALE - paddle_height - 10]
-                    score = 0
+                    current_game.start()
 
     keys = pygame.key.get_pressed()
 
-    if state == STATE_GAME and not paused:
-        # Move paddle
-        if keys[pygame.K_LEFT] and paddle_pos[0] > FRAME_X:
-            paddle_pos[0] -= paddle_speed
-        if keys[pygame.K_RIGHT] and paddle_pos[0] < FRAME_X + GAME_WIDTH * SCALE - paddle_width:
-            paddle_pos[0] += paddle_speed
-
-        # Update ball position
-        ball_pos[0] += ball_speed[0]
-        ball_pos[1] += ball_speed[1]
-
-        # Ball collision with walls
-        if ball_pos[0] <= FRAME_X or ball_pos[0] >= FRAME_X + GAME_WIDTH * SCALE:
-            ball_speed[0] = -ball_speed[0]
-        if ball_pos[1] <= FRAME_Y:
-            ball_speed[1] = -ball_speed[1]
-
-        # Ball collision with paddle
-        if paddle_pos[1] <= ball_pos[1] <= paddle_pos[1] + paddle_height and \
-                paddle_pos[0] <= ball_pos[0] <= paddle_pos[0] + paddle_width:
-            ball_speed[1] = -ball_speed[1]
-            score += 1
-
-        # Ball goes out of bounds
-        if ball_pos[1] > FRAME_Y + GAME_HEIGHT * SCALE:
-            print(f"Game Over! Your score: {score}")
-            ball_pos = [FRAME_X + GAME_WIDTH * SCALE // 2, FRAME_Y + GAME_HEIGHT * SCALE // 2]
-            ball_speed = [0.1, 0.1]
-            score = 0
-
-        # Draw game elements
-        pygame.draw.rect(screen, WHITE, (paddle_pos[0], paddle_pos[1], paddle_width, paddle_height))
-        pygame.draw.circle(screen, WHITE, (int(ball_pos[0]), int(ball_pos[1])), 10)
-
-        # Display score
-        score_text = FONT.render(f"Score: {score}", True, WHITE)
-        screen.blit(score_text, (10, 10))
-
-        # Draw game area
-        pygame.draw.rect(screen, WHITE, (FRAME_X, FRAME_Y, GAME_WIDTH * SCALE, GAME_HEIGHT * SCALE), 5)
-
-        # Controls info
-        controls = ["ESC - exit", "← - move to the left", "→ - move to the right", "R - restart", "P - pause"]
-        for i, control in enumerate(controls):
-            control_text = SMALL_FONT.render(control, True, WHITE)
-            screen.blit(control_text, (10, SCREEN_HEIGHT - 100 + i * 20))
+    if state == STATE_GAME and current_game and not paused:
+        current_game.update(keys)
+        current_game.draw()
 
     elif paused:
         pause_text = FONT.render("Game Paused", True, WHITE)
@@ -147,9 +268,8 @@ while running:
 
         for i, port in enumerate(ports):
             color = WHITE if i == selected_port else GRAY
-            port_text = FONT.render(port, True, color)
+            port_text = FONT.render(", ".join(port_list), True, color)
             screen.blit(port_text, (SCREEN_WIDTH // 2 - port_text.get_width() // 2, 150 + i * 40))
-
 
     elif state == STATE_MENU:
         # Game selection menu
