@@ -16,9 +16,11 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
+/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include <stdio.h>
-
+#include <stdbool.h>
+#include <stdlib.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -26,8 +28,10 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+
 uint8_t msg_tx[512];
-uint8_t msg_rx[3];
+uint8_t msg_rx[16];
+uint8_t* command_tx;
 
 unsigned int buffer[3];
 
@@ -47,6 +51,8 @@ unsigned long Time;
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_usart1_rx;
+DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
 
@@ -55,65 +61,77 @@ UART_HandleTypeDef huart1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART1_UART_Init(void);
+/* USER CODE BEGIN PFP */
 
-unsigned int calculateBCC(unsigned int *data, int length)
-{
+
+
+
+void SendPackage(int *data, int len){
 	
-			HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Data ---%i", data[0]), 0xFFFF);
-			HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Data---%i", data[1]), 0xFFFF);
-      HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Data---%i", data[2]), 0xFFFF);
 	
+	
+}
+
+unsigned int calculateBCC(uint8_t *data, int length, bool get) // BCC CALCULATION 1-true 0-false
+{				
     unsigned int checksum = 0;
+	if(!get){
     for (int i = 0; i < length-1; i++)
     {
-			
         checksum ^= (int)data[i];
 				
-			
     }
-		
+
 		if(	checksum == data[length-1]){
     return 1;
 		}
 		else{
 			return 0;
 		}
+	}
+	else {
+		
+		  for (int i = 0; i < length-1; i++)
+    {
+        checksum ^= (int)data[i];
+			
+    }
+		return checksum;
+
+	
+		
+	}
 }
 
-
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){          // PROBABLY NEED CALLBACK REWORK :3
     switch((int)msg_rx[0]){
-		case(	0x1):
-			HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Package1 ---%i", msg_rx[0]), 0xFFFF);
-			HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Package2 ---%i", msg_rx[1]), 0xFFFF);
-      HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Package3 ---%i", msg_rx[2]), 0xFFFF);
-		 
-		for(int i=0; i<(sizeof(msg_rx)/ sizeof(msg_rx[0]));i++){
-			buffer[i]=(int)msg_rx[i];
-		 }
-		
-		  if(calculateBCC(buffer,  (sizeof(msg_rx)/ sizeof(msg_rx[0]) ))){
-
-        HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "BCC Correct"), 0xFFFF);
-      }		
-
-			
-			else{
-				HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "BCC Not correct"), 0xFFFF);
-				
-				
-			}
+		case(0x01):
+				if(calculateBCC(msg_rx, 3, 0 )){
+					// NEED TO MAKE CYCLE FOR LIST OF GAMES (BLALALA BLYLYLYL)
+						msg_tx[0]=0x01;
+						msg_tx[1]=0x01;
+						msg_tx[2]=0x14;
+						msg_tx[3]=calculateBCC(msg_tx, 4,1);
+			    HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);}
+				else{
+						msg_tx[0]=0x01;
+						msg_tx[1]=0xFF;
+						msg_tx[2]=0xFF;
+						msg_tx[3]=calculateBCC(msg_tx, 4,1);		
+					HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);}
+		break;
+		case(0x02):
 			
 		
 
 		
-		
-		
-			break;
+		 if( ((int)msg_rx[1] == 0x0E) &&( !(int)msg_rx[2] && !(int)msg_rx[3]) && calculateBCC(msg_rx, 5, 0 ))  {
+		    	HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "pig\n\r"), 0xFFFF);
+	 }
 	
+		break;
 		
 		
 		
@@ -121,26 +139,65 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	
 }
 
+
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
+
 /**
   * @brief  The application entry point.
   * @retval int
   */
 int main(void)
 {
+
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
   SystemClock_Config();
 
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
+  /* USER CODE BEGIN 2 */
 
+
+
+
+
+  /* USER CODE END 2 */
 	HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "Hello World. Send Package\n\r"), 0xFFFF);
-  HAL_UART_Receive_IT(&huart1,msg_rx,3);
+  HAL_UART_Receive_IT(&huart1,msg_rx,5);
 
-
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
   }
+  /* USER CODE END 3 */
 }
 
 /**
@@ -217,6 +274,22 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel2_3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel2_3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel2_3_IRQn);
 
 }
 
