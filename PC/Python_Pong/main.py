@@ -9,7 +9,7 @@ font_path = os.path.join("./", "MinecraftTen-VGORe.ttf")
 
 # Ініціалізація Pygame
 pygame.init()
-WIDTH, HEIGHT = 820, 840
+WIDTH, HEIGHT = 820, 420
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game Selection")
 clock = pygame.time.Clock()
@@ -45,11 +45,7 @@ def draw_game(ball, platform):
     # Малюємо платформу
     for i in range(4):
         platform_y_position = HEIGHT - 40  # Позиція платформи на 30 пікселів вище нижнього краю
-<<<<<<< HEAD
-        pygame.draw.rect(screen, WHITE, (platform[0] * 20 + i * 20, platform_y_position, 40, 5))
-=======
         pygame.draw.rect(screen, WHITE, (platform[0] * 20 + i * 20, platform_y_position, 20, 10))
->>>>>>> 3b4293810fcbaa2590257662455eb8122744d6d0
 
     pygame.display.flip()
 
