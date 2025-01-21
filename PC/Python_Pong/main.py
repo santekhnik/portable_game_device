@@ -1,8 +1,21 @@
 import serial
 import json
 import time
-import keyboard
+import pygame
 import serial.tools.list_ports
+
+# Ініціалізація Pygame
+pygame.init()
+WIDTH, HEIGHT = 820, 420
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Game Selection")
+clock = pygame.time.Clock()
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BALL_COLOR = (255, 0, 0)
+PLATFORM_COLOR = (0, 255, 0)
+FONT = pygame.font.Font(None, 36)
 
 
 def init_serial(port, baudrate=115200):
@@ -11,115 +24,127 @@ def init_serial(port, baudrate=115200):
 
 def receive_game_data(ser):
     try:
-        line = ser.readline().decode("utf-8").strip()  # Читаємо рядок
-
+        line = ser.readline().decode("utf-8").strip()
         if line:
-            return json.loads(line)  # Парсимо JSON
+            return json.loads(line)
     except (json.JSONDecodeError, UnicodeDecodeError):
-        return print("Receiving error")
+        print("Receiving error")
     return None
 
-
 def draw_game(ball, platform):
-    screen = [[' ' for _ in range(21)] for _ in range(11)]  # Порожнє поле
-
-    # Малюємо межі
-    for x in range(21):
-        screen[0][x] = '_'  # Верхня межа
-    for y in range(11):
-        screen[y][0] = '|'  # Ліва межа
-        screen[y][20] = '|'  # Права межа
+    screen.fill(BLACK)
 
     # Малюємо м'яч
-    screen[ball[1]][ball[0]] = 'O'
+    # Заміна круга на квадрат
+    ball_size = 20  # Розмір квадрата
+    pygame.draw.rect(screen, BALL_COLOR, (ball[0] * ball_size, ball[1] * ball_size, ball_size, ball_size))
 
     # Малюємо платформу
     for i in range(4):
-        screen[9][platform[0] + i] = '-'
-
-    # Виводимо поле
-    print("\033[H", end="")  # Очищення консолі
-    for row in screen:
-        print("".join(row))
-    print("Use 'a' to move left, 'd' to move right")
+        platform_y_position = HEIGHT - 40  # Позиція платформи на 30 пікселів вище нижнього краю
+        pygame.draw.rect(screen, PLATFORM_COLOR, (platform[0] * 20 + i * 20, platform_y_position, 20, 10))
+    pygame.display.flip()
 
 
-def show_menu():
-    print("Select a game:")
-    print("1 - Pong")
-    print("2 - Snake")
-    print("Press '1' or '2' to select the game.")
-    print("Press 'q' to quit.")
-
-
-def list_com_ports():
+def select_com_port():
     ports = serial.tools.list_ports.comports()
     if not ports:
-        print("No serial ports found.")
         return None
-    print("Select a COM port:")
-    for idx, port in enumerate(ports, 1):
-        print(f"{idx} - {port.device}")
+
+    selected_index = 0
 
     while True:
-        try:
-            choice = int(input("Enter the number of the COM port: "))
-            if 1 <= choice <= len(ports):
-                return ports[choice - 1].device
-            else:
-                print("Invalid choice. Please select a valid port number.")
-        except ValueError:
-            print("Please enter a valid number.")
+        screen.fill(WHITE)
+        text = FONT.render("Select COM Port:", True, BLACK)
+        screen.blit(text, (10, 10))
+
+        for idx, port in enumerate(ports):
+            color = (0, 0, 255) if idx == selected_index else BLACK
+            port_text = FONT.render(f"{idx + 1}: {port.device}", True, color)
+            screen.blit(port_text, (10, 50 + idx * 40))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    selected_index = (selected_index + 1) % len(ports)
+                elif event.key == pygame.K_UP:
+                    selected_index = (selected_index - 1) % len(ports)
+                elif event.key == pygame.K_RETURN:
+                    return ports[selected_index].device
+
+
+def select_game(ser):
+    options = ["Pong"]
+    selected_index = 0
+
+    while True:
+        screen.fill(WHITE)
+        text = FONT.render("Select Game:", True, BLACK)
+        screen.blit(text, (10, 10))
+
+        for idx, option in enumerate(options):
+            color = (0, 0, 255) if idx == selected_index else BLACK
+            option_text = FONT.render(f"{idx + 1}: {option}", True, color)
+            screen.blit(option_text, (10, 50 + idx * 50))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    selected_index = (selected_index + 1) % len(options)
+                elif event.key == pygame.K_UP:
+                    selected_index = (selected_index - 1) % len(options)
+                elif event.key == pygame.K_RETURN:
+                    # Відправляємо вибір гри на STM32 (0 для Pong, 1 для Snake)
+                    ser.write(str(selected_index).encode())
+                    return options[selected_index]
+
 
 
 def main():
-    com_port = list_com_ports()
+    com_port = select_com_port()
     if not com_port:
         return
-
     ser = init_serial(com_port)
 
-    while True:
-        show_menu()  # Показуємо меню
-        while True:
-            if keyboard.is_pressed('1'):  # Вибір гри "Понг"
-                command = '1'
-                ser.write(command.encode())
-                print("You selected Pong!")
-                break
-            elif keyboard.is_pressed('2'):  # Вибір гри "Змійка"
-                command = '2'
-                ser.write(command.encode())
-                print("You selected Snake!")
-                break
-            elif keyboard.is_pressed('q'):  # Вихід з меню
-                print("Quitting...")
-                ser.write('q'.encode())
-                return
-            time.sleep(0.1)  # Затримка для перевірки вводу
+    game = select_game(ser)
+    if not game:
+        return
 
-        # Основний цикл гри
-        while True:
-            data = receive_game_data(ser)  # Отримуємо координати з STM32
-            if data:
-                ball = data["ball"]
-                platform = data["platform"]
-                draw_game(ball, platform)  # Малюємо гру
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-            # Керування гравцем
-            if keyboard.is_pressed('a'):
-                command = 'a'
-                ser.write(command.encode())
-            elif keyboard.is_pressed('d'):
-                command = 'd'
-                ser.write(command.encode())
-            elif keyboard.is_pressed('r'):
-                command = 'r'
-                ser.write(command.encode())
-            elif keyboard.is_pressed('p'):
-                command = 'p'
-                ser.write(command.encode())
-            time.sleep(0.05)  # Маленька пауза для плавної гри
+        data = receive_game_data(ser)
+        if data:
+            ball = data["ball"]
+            platform = data["platform"]
+            draw_game(ball, platform)
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
+            ser.write(b'a')
+        elif keys[pygame.K_d]:
+            ser.write(b'd')
+        elif keys[pygame.K_r]:
+            ser.write(b'r')
+        elif keys[pygame.K_p]:
+            ser.write(b'p')
+
+        clock.tick(30)
+
+    pygame.quit()
 
 
 if __name__ == "__main__":
