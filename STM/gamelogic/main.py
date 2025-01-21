@@ -1,4 +1,3 @@
-
 import serial
 import json
 import time
@@ -10,7 +9,7 @@ font_path = os.path.join("./", "MinecraftTen-VGORe.ttf")
 
 # Ініціалізація Pygame
 pygame.init()
-WIDTH, HEIGHT = 820, 420
+WIDTH, HEIGHT = 820, 840
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game Selection")
 clock = pygame.time.Clock()
@@ -46,7 +45,7 @@ def draw_game(ball, platform):
     # Малюємо платформу
     for i in range(4):
         platform_y_position = HEIGHT - 40  # Позиція платформи на 30 пікселів вище нижнього краю
-        pygame.draw.rect(screen, WHITE, (platform[0] * 20 + i * 20, platform_y_position, 20, 10))
+        pygame.draw.rect(screen, WHITE, (platform[0] * 20 + i * 20, platform_y_position, 40, 5))
 
     pygame.display.flip()
 
@@ -151,3 +150,4 @@ def main():
 
 
 if __name__ == "__main__":
+    main()

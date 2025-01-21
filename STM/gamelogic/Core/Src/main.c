@@ -69,27 +69,28 @@ static void MX_USART1_UART_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
-#define SCREEN_WIDTH  20
-#define SCREEN_HEIGHT 10
-#define PLATFORM_WIDTH 4
+#define SCREEN_WIDTH  40
+#define SCREEN_HEIGHT 40
+#define PLATFORM_WIDTH 5
 
-int ball_x = 10;
-int ball_y = 3;
-int ball_dx = 1;
-int ball_dy = 1;
+float ball_x = 20;
+float ball_y = 6;
+float ball_dx = 1;
+float ball_dy = 1;
 
-int platform_x = 8;
-int platform_y = SCREEN_HEIGHT - 2;
+float platform_x = 20;
+float platform_y = SCREEN_HEIGHT - 2;
 int game_over = 0;
+int paused = 0;  // Paused default status
+int game_type = 0;  // 0 - Pong, 1 - Snake
 
-char uart_input;
+uint8_t msg_rx[1];
+uint8_t msg_tx[128];
 
 void reset_game() {
-    ball_x = 10;
-    ball_y = 3;
-    ball_dx = 1;
-    ball_dy = 1;
-    platform_x = 8;
+    ball_x = 20;
+    ball_y = 6;
+    platform_x = 20;
     platform_y = SCREEN_HEIGHT - 2;
     game_over = 0;
 }
@@ -106,11 +107,11 @@ void update_game() {
             ball_dy = -ball_dy;
         }
 
-        if (ball_y == platform_y && ball_x >= platform_x && ball_x < platform_x + PLATFORM_WIDTH) {
+        if (ball_y == (platform_y) && ball_x >= platform_x && ball_x < platform_x + PLATFORM_WIDTH) {
             ball_dy = -ball_dy;
         }
 
-        if (ball_y > platform_y) {
+        if (ball_y > (platform_y)) {
             game_over = 1;
         }
     } else {
@@ -120,44 +121,52 @@ void update_game() {
 }
 
 void send_game_state() {
-    char buffer[64];
-    snprintf(buffer, sizeof(buffer), "{\"ball\": [%d, %d], \"platform\": [%d]}\r\n", ball_x, ball_y, platform_x);
-    HAL_UART_Transmit(&huart1, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);
+    HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "{\"ball\": [%f, %f], \"platform\": [%f]}\r\n", ball_x, ball_y, platform_x), 0xFFFF);
 }
 
-void receive_control() {
-    uint8_t command;
-    
-    // ???????????, ?? ? ???? ???? ? ?????? UART
-    if (HAL_UART_Receive(&huart1, &command, 1, 10) == HAL_OK) {
-        if (command == 'a' && platform_x > 1) {
-            platform_x -= 2;  // ??? ?????
-        } else if (command == 'd' && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
-            platform_x += 2;  // ??? ??????
-        }
-    }
-}
+
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART1) {
-        receive_control();
-        HAL_UART_Receive_IT(&huart1, (uint8_t*)&uart_input, 1);
+         if (msg_rx[0] == 'a' && !paused && platform_x > 1) {
+            platform_x -= 1;
+				 }
+				 else if (msg_rx[0] == 'd' && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
+            platform_x += 1;
+        }
+				 else if ((msg_rx[0] == 'r') && !paused ){
+					  reset_game();}
+				 else if (msg_rx[0] == 'p'){
+					  paused = !paused; // Toggle pause state
+					 }
+				 
+        HAL_UART_Receive_IT(&huart1, msg_rx, 1);
     }
-}
 
 int main(void) {
     HAL_Init();
     SystemClock_Config();
     MX_USART1_UART_Init();
-    HAL_UART_Receive_IT(&huart1, (uint8_t*)&uart_input, 1);
+    HAL_UART_Receive_IT(&huart1, msg_rx, 1);
     
-    while (1) {
-        update_game();
-        send_game_state();
-        HAL_Delay(100);
+    while (game_type == 0 && game_type == 1) {
+        HAL_Delay(150); 
     }
+
+    while (1) {
+			if(paused){
+					HAL_UART_Receive_IT(&huart1, msg_rx, 1);
+			}
+        	else if (!paused) {
+            update_game();
+            send_game_state();
+					HAL_Delay(50);
+        }
+			
+
+    
 }
 
+}
 /**
   * @brief System Clock Configuration
   * @retval None
