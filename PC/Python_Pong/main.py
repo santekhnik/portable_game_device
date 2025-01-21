@@ -3,6 +3,9 @@ import json
 import time
 import pygame
 import serial.tools.list_ports
+import os
+
+font_path = os.path.join("./", "MinecraftTen-VGORe.ttf")
 
 # Ініціалізація Pygame
 pygame.init()
@@ -13,9 +16,9 @@ clock = pygame.time.Clock()
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-BALL_COLOR = (255, 0, 0)
-PLATFORM_COLOR = (0, 255, 0)
-FONT = pygame.font.Font(None, 36)
+BALL_COLOR = (0, 196, 156)
+PLATFORM_COLOR = (118, 0, 196)
+FONT = pygame.font.Font(font_path, 36)
 
 
 def init_serial(port, baudrate=115200):
@@ -31,18 +34,19 @@ def receive_game_data(ser):
         print("Receiving error")
     return None
 
+
 def draw_game(ball, platform):
     screen.fill(BLACK)
 
     # Малюємо м'яч
-    # Заміна круга на квадрат
     ball_size = 20  # Розмір квадрата
-    pygame.draw.rect(screen, BALL_COLOR, (ball[0] * ball_size, ball[1] * ball_size, ball_size, ball_size))
+    pygame.draw.rect(screen, WHITE, (ball[0] * ball_size, ball[1] * ball_size, ball_size, ball_size))
 
     # Малюємо платформу
     for i in range(4):
         platform_y_position = HEIGHT - 40  # Позиція платформи на 30 пікселів вище нижнього краю
-        pygame.draw.rect(screen, PLATFORM_COLOR, (platform[0] * 20 + i * 20, platform_y_position, 20, 10))
+        pygame.draw.rect(screen, WHITE, (platform[0] * 20 + i * 20, platform_y_position, 20, 10))
+
     pygame.display.flip()
 
 
@@ -54,13 +58,13 @@ def select_com_port():
     selected_index = 0
 
     while True:
-        screen.fill(WHITE)
-        text = FONT.render("Select COM Port:", True, BLACK)
+        screen.fill(BLACK)
+        text = FONT.render("Select COM Port:", True, WHITE)
         screen.blit(text, (10, 10))
 
         for idx, port in enumerate(ports):
             color = (0, 0, 255) if idx == selected_index else BLACK
-            port_text = FONT.render(f"{idx + 1}: {port.device}", True, color)
+            port_text = FONT.render(f"{idx + 1}: {port.device}", True, WHITE)
             screen.blit(port_text, (10, 50 + idx * 40))
 
         pygame.display.flip()
@@ -83,13 +87,13 @@ def select_game(ser):
     selected_index = 0
 
     while True:
-        screen.fill(WHITE)
-        text = FONT.render("Select Game:", True, BLACK)
+        screen.fill(BLACK)
+        text = FONT.render("Select Game:", True, WHITE)
         screen.blit(text, (10, 10))
 
         for idx, option in enumerate(options):
             color = (0, 0, 255) if idx == selected_index else BLACK
-            option_text = FONT.render(f"{idx + 1}: {option}", True, color)
+            option_text = FONT.render(f"{idx + 1}: {option}", True, WHITE)
             screen.blit(option_text, (10, 50 + idx * 50))
 
         pygame.display.flip()
@@ -104,10 +108,8 @@ def select_game(ser):
                 elif event.key == pygame.K_UP:
                     selected_index = (selected_index - 1) % len(options)
                 elif event.key == pygame.K_RETURN:
-                    # Відправляємо вибір гри на STM32 (0 для Pong, 1 для Snake)
-                    ser.write(str(selected_index).encode())
+                    ser.write(str(selected_index + 1).encode())
                     return options[selected_index]
-
 
 
 def main():
