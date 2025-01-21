@@ -1,0 +1,25 @@
+--cpu Cortex-M0
+"gamelogic\startup_stm32f051x8.o"
+"gamelogic\main.o"
+"gamelogic\stm32f0xx_it.o"
+"gamelogic\stm32f0xx_hal_msp.o"
+"gamelogic\stm32f0xx_hal_uart.o"
+"gamelogic\stm32f0xx_hal_uart_ex.o"
+"gamelogic\stm32f0xx_hal_rcc.o"
+"gamelogic\stm32f0xx_hal_rcc_ex.o"
+"gamelogic\stm32f0xx_hal.o"
+"gamelogic\stm32f0xx_hal_i2c.o"
+"gamelogic\stm32f0xx_hal_i2c_ex.o"
+"gamelogic\stm32f0xx_hal_gpio.o"
+"gamelogic\stm32f0xx_hal_dma.o"
+"gamelogic\stm32f0xx_hal_cortex.o"
+"gamelogic\stm32f0xx_hal_pwr.o"
+"gamelogic\stm32f0xx_hal_pwr_ex.o"
+"gamelogic\stm32f0xx_hal_flash.o"
+"gamelogic\stm32f0xx_hal_flash_ex.o"
+"gamelogic\stm32f0xx_hal_exti.o"
+"gamelogic\system_stm32f0xx.o"
+--strict --scatter "gamelogic\gamelogic.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "gamelogic.map" -o gamelogic\gamelogic.axf
