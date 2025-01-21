@@ -5,7 +5,7 @@ import pygame
 import serial.tools.list_ports
 import os
 
-font_path = os.path.join("../progpy", "MinecraftTen-VGORe.ttf")
+font_path = os.path.join("./", "MinecraftTen-VGORe.ttf")
 
 # Ініціалізація Pygame
 pygame.init()
