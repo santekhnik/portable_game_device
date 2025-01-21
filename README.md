@@ -1,6 +1,17 @@
 # portable_game_device
 
-## Rules
+## Additional features
+- Other games
+- Difficulties
+- Settings
+- Bot
+- Second player
+- Speed increase
+- Field size
+- Restart, pause, esc
+- Smooth button
+
+## Rules of development
 
 1. All push requests Finik observes
 2. README.md can be changed only by Finik

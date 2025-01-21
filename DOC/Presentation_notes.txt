@@ -1,0 +1,12 @@
+1. Hello there
+2. Idea of project
+3. What was used
+4. App demonstration
+4.1. Error connect
+4.2. Good connect
+4.3. Error game
+4.4. Good game
+4.5. Game
+4.6. Esc
+5. About app
+6. How to improve project
