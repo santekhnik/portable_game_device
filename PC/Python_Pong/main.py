@@ -45,7 +45,11 @@ def draw_game(ball, platform):
     # Малюємо платформу
     for i in range(4):
         platform_y_position = HEIGHT - 40  # Позиція платформи на 30 пікселів вище нижнього краю
+<<<<<<< HEAD
         pygame.draw.rect(screen, WHITE, (platform[0] * 20 + i * 20, platform_y_position, 40, 5))
+=======
+        pygame.draw.rect(screen, WHITE, (platform[0] * 20 + i * 20, platform_y_position, 20, 10))
+>>>>>>> 3b4293810fcbaa2590257662455eb8122744d6d0
 
     pygame.display.flip()
 
