@@ -70,16 +70,16 @@ static void MX_USART1_UART_Init(void);
   * @retval int
   */
 #define SCREEN_WIDTH  40
-#define SCREEN_HEIGHT 20
-#define PLATFORM_WIDTH 4
+#define SCREEN_HEIGHT 40
+#define PLATFORM_WIDTH 5
 
-int ball_x = 20;
-int ball_y = 6;
-int ball_dx = 1;
-int ball_dy = 1;
+float ball_x = 20;
+float ball_y = 6;
+float ball_dx = 1;
+float ball_dy = 1;
 
-int platform_x = 20;
-int platform_y = SCREEN_HEIGHT - 2;
+float platform_x = 20;
+float platform_y = SCREEN_HEIGHT - 2;
 int game_over = 0;
 int paused = 0;  // Paused default status
 int game_type = 0;  // 0 - Pong, 1 - Snake
@@ -90,8 +90,6 @@ uint8_t msg_tx[128];
 void reset_game() {
     ball_x = 20;
     ball_y = 6;
-    ball_dx = 1;
-    ball_dy = 1;
     platform_x = 20;
     platform_y = SCREEN_HEIGHT - 2;
     game_over = 0;
@@ -99,7 +97,6 @@ void reset_game() {
 
 void update_game() {
     if (!game_over) {
-				HAL_Delay(10);
         ball_x += ball_dx;
         ball_y += ball_dy;
 
@@ -110,11 +107,11 @@ void update_game() {
             ball_dy = -ball_dy;
         }
 
-        if (ball_y == platform_y && ball_x >= platform_x && ball_x < platform_x + PLATFORM_WIDTH) {
+        if (ball_y == (platform_y) && ball_x >= platform_x && ball_x < platform_x + PLATFORM_WIDTH) {
             ball_dy = -ball_dy;
         }
 
-        if (ball_y > platform_y) {
+        if (ball_y > (platform_y)) {
             game_over = 1;
         }
     } else {
@@ -124,19 +121,19 @@ void update_game() {
 }
 
 void send_game_state() {
-    HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "{\"ball\": [%d, %d], \"platform\": [%d]}\r\n", ball_x, ball_y, platform_x), 0xFFFF);
+    HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "{\"ball\": [%f, %f], \"platform\": [%f]}\r\n", ball_x, ball_y, platform_x), 0xFFFF);
 }
 
 
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-         if (msg_rx[0] == 'a' && platform_x > 1) {
-            platform_x -= 2;
+         if (msg_rx[0] == 'a' && !paused && platform_x > 1) {
+            platform_x -= 1;
 				 }
-				 else if (msg_rx[0] == 'd' && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
-            platform_x += 2;
+				 else if (msg_rx[0] == 'd' && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
+            platform_x += 1;
         }
-				 else if (msg_rx[0] == 'r'){
+				 else if ((msg_rx[0] == 'r') && !paused ){
 					  reset_game();}
 				 else if (msg_rx[0] == 'p'){
 					  paused = !paused; // Toggle pause state
@@ -156,14 +153,20 @@ int main(void) {
     }
 
     while (1) {
-        if (!paused) {
+			if(paused){
+					HAL_UART_Receive_IT(&huart1, msg_rx, 1);
+			}
+        	else if (!paused) {
             update_game();
             send_game_state();
+					HAL_Delay(50);
         }
-        HAL_Delay(150);
-    }
+			
+
+    
 }
 
+}
 /**
   * @brief System Clock Configuration
   * @retval None
