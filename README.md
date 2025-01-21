@@ -1,15 +1,15 @@
 # portable_game_device
 
 ## Additional features
--Other games
--Difficulties
--Settings
--Bot
--Second player
--Speed increase
--Field size
--Restart, pause, esc
--Smooth button
+- Other games
+- Difficulties
+- Settings
+- Bot
+- Second player
+- Speed increase
+- Field size
+- Restart, pause, esc
+- Smooth button
 
 ## Rules of development
 
