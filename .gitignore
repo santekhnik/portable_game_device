@@ -1,0 +1,7 @@
+.vs/
+.vscode/
+.idea/
+.venv/
+STM/gamelogic/MDK-ARM/RTE/_gamelogic/RTE_Components.h
+STM/gamelogic/MDK-ARM/gamelogic.uvoptx
+STM/gamelogic/MDK-ARM/gamelogic.uvprojx
