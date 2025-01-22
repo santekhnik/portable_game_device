@@ -69,17 +69,17 @@ static void MX_USART1_UART_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
-#define SCREEN_WIDTH  40
-#define SCREEN_HEIGHT 40
-#define PLATFORM_WIDTH 5
+#define SCREEN_WIDTH  16
+#define SCREEN_HEIGHT 32
+#define PLATFORM_WIDTH 4
 
-float ball_x = 20;
-float ball_y = 6;
+float ball_x = 8;
+float ball_y = 8;
 float ball_dx = 1;
 float ball_dy = 1;
 
-float platform_x = 20;
-float platform_y = SCREEN_HEIGHT - 2;
+float platform_x = 6;
+float platform_y = SCREEN_HEIGHT - 4;
 int game_over = 0;
 int paused = 0;  // Paused default status
 int game_type = 0;  // 0 - Pong, 1 - Snake
@@ -88,10 +88,10 @@ uint8_t msg_rx[1];
 uint8_t msg_tx[128];
 
 void reset_game() {
-    ball_x = 20;
-    ball_y = 6;
-    platform_x = 20;
-    platform_y = SCREEN_HEIGHT - 2;
+    ball_x = 8;
+    ball_y = 8;
+    platform_x = 6;
+    platform_y = SCREEN_HEIGHT - 4;
     game_over = 0;
 }
 
