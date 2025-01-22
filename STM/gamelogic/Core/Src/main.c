@@ -21,6 +21,7 @@
 #include "stm32f0xx_hal.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -69,29 +70,145 @@ static void MX_USART1_UART_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
-#define SCREEN_WIDTH  40
-#define SCREEN_HEIGHT 40
-#define PLATFORM_WIDTH 5
+int SCREEN_WIDTH = 16;
+int const SCREEN_HEIGHT = 32;
+int PLATFORM_WIDTH = 4;
 
-float ball_x = 20;
-float ball_y = 6;
-float ball_dx = 1;
-float ball_dy = 1;
+float ball_x = 8;
+float ball_y = 8;
+float ball_dx = 0.5;
+float ball_dy = 0.5;
 
-float platform_x = 20;
-float platform_y = SCREEN_HEIGHT - 2;
-int game_over = 0;
-int paused = 0;  // Paused default status
+float platform_x = 6;
+float platform_y = SCREEN_HEIGHT - 4;
+bool game_over = 0;
+bool paused = 0;  // Paused default status
 int game_type = 0;  // 0 - Pong, 1 - Snake
 
-uint8_t msg_rx[1];
+uint8_t msg_rx[5];
 uint8_t msg_tx[128];
 
+void reset_game();
+void send_game_state();
+
+unsigned int calculateBCC(uint8_t *data, int length, bool get) // BCC CALCULATION 1-true 0-false
+{				
+    unsigned int checksum = 0;
+	if(!get){
+    for (int i = 0; i < length-1; i++)
+    {
+        checksum ^= (int)data[i];
+				
+    }
+
+		if(	checksum == data[length-1]){
+    return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else {
+		
+		  for (int i = 0; i < length-1; i++)
+    {
+        checksum ^= (int)data[i];
+			
+    }
+		return checksum;
+
+	
+		
+	}
+}
+
+void game_control(){
+		if (msg_rx[1] == 'a' && !paused && platform_x > 1) {
+            platform_x -= 1;
+			}
+		else if ((char)msg_rx[1] == 'd' && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
+            platform_x += 1;
+      }
+		else if (((char)msg_rx[1] == 'r') && !paused ){
+					reset_game();
+			}
+		else if ((char)msg_rx[1] == 'p'){
+					paused = !paused; // Toggle pause state
+			}
+		else if((int)msg_rx[1] == 33){ // ASCII 033 = ESC
+				 msg_tx[0] = 0x01;
+				 msg_tx[1] = 0x01;
+				 msg_tx[2] = calculateBCC(msg_tx, 3, 1);
+				 HAL_UART_Transmit(&huart1, msg_tx, 3 , 0xFFFF);	 
+			}
+				 
+					 
+					msg_tx[0] = 0x03;
+					msg_tx[1] = ball_x;
+					msg_tx[2] = ball_y;
+					msg_tx[3] = platform_x;
+					msg_tx[4] = platform_y;
+					msg_tx[5] = calculateBCC(msg_tx, 8, 1);
+
+        HAL_UART_Receive_IT(&huart1, msg_rx, 1);
+					 
+}
+
+void Check_Protocol(){
+	 switch((int)msg_rx[0]){
+		case(0x01):
+				if(calculateBCC(msg_rx, 3, 0 ) && !(int)msg_rx[2]){
+					// NEED TO MAKE CYCLE FOR LIST OF GAMES (BLALALA BLYLYLYL)
+						msg_tx[0]=0x01;
+						msg_tx[1]=0x01;
+						msg_tx[2]=0x14;
+						msg_tx[3]=calculateBCC(msg_tx, 4,1);
+			      HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);}
+				else{
+						msg_tx[0]=0x01;
+						msg_tx[1]=0xFF;
+						msg_tx[2]=0xFF;
+						msg_tx[3]=calculateBCC(msg_tx, 4,1);		
+						HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);}
+			break;
+		
+		
+		case(0x03):
+			send_game_state();
+			break;
+		case(0x02): 
+			break;
+		case(0x04):
+			game_control();
+			//recive control key
+			break;
+			
+			
+		
+
+		
+		 if( ((int)msg_rx[1] == 0x0E) &&( !(int)msg_rx[2] && !(int)msg_rx[3]) && calculateBCC(msg_rx, 5, 0 ))  {
+		    	HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "pig\n\r"), 0xFFFF);
+	 }
+	
+		break;
+ }
+}
+
+
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){          // PROBABLY NEED CALLBACK REWORK :3
+		Check_Protocol();
+}
+
+
+
+
 void reset_game() {
-    ball_x = 20;
-    ball_y = 6;
-    platform_x = 20;
-    platform_y = SCREEN_HEIGHT - 2;
+    ball_x = 8;
+    ball_y = 8;
+    platform_x = 6;
+    platform_y = SCREEN_HEIGHT - 4;
     game_over = 0;
 }
 
@@ -115,42 +232,27 @@ void update_game() {
             game_over = 1;
         }
     } else {
+				msg_tx[0] = 0x05;
+				msg_tx[1] = 0x00;
+			  msg_tx[2] = calculateBCC(msg_tx, 3, 1);
         // Restart the game if it's over
-        reset_game();
+        //reset_game();
     }
 }
 
 void send_game_state() {
-    HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "{\"ball\": [%f, %f], \"platform\": [%f]}\r\n", ball_x, ball_y, platform_x), 0xFFFF);
+		HAL_UART_Transmit(&huart1, (char)msg_tx, 6 , 0xFFFF);
 }
-
-
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-         if (msg_rx[0] == 'a' && !paused && platform_x > 1) {
-            platform_x -= 1;
-				 }
-				 else if (msg_rx[0] == 'd' && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
-            platform_x += 1;
-        }
-				 else if ((msg_rx[0] == 'r') && !paused ){
-					  reset_game();}
-				 else if (msg_rx[0] == 'p'){
-					  paused = !paused; // Toggle pause state
-					 }
-				 
-        HAL_UART_Receive_IT(&huart1, msg_rx, 1);
-    }
 
 int main(void) {
     HAL_Init();
     SystemClock_Config();
     MX_USART1_UART_Init();
-    HAL_UART_Receive_IT(&huart1, msg_rx, 1);
+    HAL_UART_Receive_IT(&huart1, msg_rx, 3);
     
-    while (game_type == 0 && game_type == 1) {
+   /* while (game_type == 0 && game_type == 1) {
         HAL_Delay(150); 
-    }
+    }*/
 
     while (1) {
 			if(paused){

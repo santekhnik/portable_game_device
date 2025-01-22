@@ -5,11 +5,11 @@
 <h2>Tool Versions:</h2>
 IDE-Version: µVision V5.41.0.0
 Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Volodymyr Mugivara, GlobalLogic, LIC=----
+License Information: Ihor Kravets, none, LIC=----
  
 Tool Versions:
 Toolchain:       MDK-Lite  Version: 5.41.0.0
-Toolchain Path:  C:\Users\Mugivara\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin
+Toolchain Path:  C:\Users\ihor-kravets\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin
 C Compiler:      ArmClang.exe V6.22
 Assembler:       Armasm.exe V6.22
 Linker/Locator:  ArmLink.exe V6.22
@@ -21,17 +21,72 @@ Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.3.0.0
 Dialog DLL:      TARMCM1.DLL V1.14.6.0
  
 <h2>Project:</h2>
-C:\Users\Mugivara\Documents\practice\gamelogic\MDK-ARM\gamelogic.uvprojx
-Project File Date:  01/17/2025
+C:\Users\ihor-kravets\Desktop\GmaeBoi\portable_game_device\STM\MDK-ARM\gamelogic.uvprojx
+Project File Date:  01/22/2025
 
 <h2>Output:</h2>
-*** Using Compiler 'V6.22', folder: 'C:\Users\Mugivara\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
+*** Using Compiler 'V6.22', folder: 'C:\Users\ihor-kravets\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'gamelogic'
+../Core/Src/main.c(47): error: unknown type name 'UART_HandleTypeDef'
+   47 | UART_HandleTypeDef huart1;
+      | ^
+../Core/Src/main.c(142): error: call to undeclared function 'HAL_UART_Transmit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  142 |                                  HAL_UART_Transmit(&huart1, msg_tx, 3 , 0xFFFF);         
+      |                                  ^
+../Core/Src/main.c(153): error: call to undeclared function 'HAL_UART_Receive_IT'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  153 |         HAL_UART_Receive_IT(&huart1, msg_rx, 1);
+      |         ^
+../Core/Src/main.c(166): error: call to undeclared function 'HAL_UART_Transmit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  166 |                               HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);}
+      |                               ^
+../Core/Src/main.c(172): error: call to undeclared function 'HAL_UART_Transmit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  172 |                                                 HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);}
+      |                                                 ^
+../Core/Src/main.c(191): error: call to undeclared function 'HAL_UART_Transmit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  191 |                         HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "pig\n\r"), 0xFFFF);
+      |                         ^
+../Core/Src/main.c(200): error: unknown type name 'UART_HandleTypeDef'
+  200 | void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){          // PROBABLY NEED CALLBACK REWORK :3
+      |                              ^
+../Core/Src/main.c(244): error: call to undeclared function 'HAL_UART_Transmit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  244 |                 HAL_UART_Transmit(&huart1, (char)msg_tx, 6 , 0xFFFF);
+      |                 ^
+../Core/Src/main.c(244): warning: cast to smaller integer type 'char' from 'uint8_t *' (aka 'unsigned char *') [-Wpointer-to-int-cast]
+  244 |                 HAL_UART_Transmit(&huart1, (char)msg_tx, 6 , 0xFFFF);
+      |                                            ^~~~~~~~~~~~
+../Core/Src/main.c(251): error: call to undeclared function 'HAL_UART_Receive_IT'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  251 |     HAL_UART_Receive_IT(&huart1, msg_rx, 3);
+      |     ^
+../Core/Src/main.c(331): error: use of undeclared identifier 'UART_WORDLENGTH_8B'
+  331 |   huart1.Init.WordLength = UART_WORDLENGTH_8B;
+      |                            ^
+../Core/Src/main.c(332): error: use of undeclared identifier 'UART_STOPBITS_1'
+  332 |   huart1.Init.StopBits = UART_STOPBITS_1;
+      |                          ^
+../Core/Src/main.c(333): error: use of undeclared identifier 'UART_PARITY_NONE'
+  333 |   huart1.Init.Parity = UART_PARITY_NONE;
+      |                        ^
+../Core/Src/main.c(334): error: use of undeclared identifier 'UART_MODE_TX_RX'
+  334 |   huart1.Init.Mode = UART_MODE_TX_RX;
+      |                      ^
+../Core/Src/main.c(335): error: use of undeclared identifier 'UART_HWCONTROL_NONE'
+  335 |   huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+      |                           ^
+../Core/Src/main.c(336): error: use of undeclared identifier 'UART_OVERSAMPLING_16'
+  336 |   huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+      |                              ^
+../Core/Src/main.c(337): error: use of undeclared identifier 'UART_ONE_BIT_SAMPLE_DISABLE'
+  337 |   huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+      |                                ^
+../Core/Src/main.c(338): error: use of undeclared identifier 'UART_ADVFEATURE_NO_INIT'
+  338 |   huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+      |                                        ^
+../Core/Src/main.c(339): error: call to undeclared function 'HAL_UART_Init'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  339 |   if (HAL_UART_Init(&huart1) != HAL_OK)
+      |       ^
+1 warning and 18 errors generated.
 compiling main.c...
-linking...
-Program Size: Code=8938 RO-data=318 RW-data=36 ZI-data=1924  
-FromELF: creating hex file...
-"gamelogic\gamelogic.axf" - 0 Error(s), 0 Warning(s).
+"gamelogic\gamelogic.axf" - 18 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -48,13 +103,14 @@ Package Vendor: Keil
 
 <h2>Collection of Component include folders:</h2>
   ./RTE/_gamelogic
-  C:/Users/Mugivara/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include
-  C:/Users/Mugivara/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include
+  C:/Users/ihor-kravets/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+  C:/Users/ihor-kravets/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include
 
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE@6.1.0
       Include file:  CMSIS/Core/Include/tz_context.h
+Target not created.
 Build Time Elapsed:  00:00:01
 </pre>
 </body>
