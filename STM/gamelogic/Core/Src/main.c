@@ -53,6 +53,7 @@ DMA_HandleTypeDef hdma_usart1_tx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
+
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
@@ -90,10 +91,17 @@ bool game_req=0;
 uint8_t msg_rx[16];
 uint8_t msg_tx[128];
 
-void reset_game();
-unsigned int calculateBCC(uint8_t *data, int length, bool get) // BCC CALCULATION 1-true 0-false
-{				
-   unsigned int checksum = 0;
+void reset_game() {
+    ball_x = 8;
+    ball_y = 8;
+    platform_x = 6;
+    platform_y = SCREEN_HEIGHT - 4;
+    game_over = 0;
+}
+int calculateBCC(uint8_t *data, int length, bool get) // BCC CALCULATION 1-true 0-false
+{	
+	
+   int checksum = 0;
 	if(!get){
 			
     for (int i = 0; i < length-1; i++)
@@ -111,17 +119,20 @@ unsigned int calculateBCC(uint8_t *data, int length, bool get) // BCC CALCULATIO
 			return 0;
 		}
 	}
-	else {
+	else if(get) {
+
 		  for (int i = 0; i < length-1; i++)
     {
         checksum ^= (int)data[i];
 			
     }
-		return checksum;
+
+	
 
 	
 		
 	}
+		return checksum;
 }
 
 void game_control(){
@@ -156,8 +167,13 @@ void game_control(){
 					 
 }
 
+
+
+
+
 void Check_Protocol(){ // Protocol --------------------------------------------------------------------------------
-	 switch((int)msg_rx[0]){
+
+	switch((int)msg_rx[0]){
 		 
 		 
 		 
@@ -170,7 +186,7 @@ void Check_Protocol(){ // Protocol ---------------------------------------------
 						msg_tx[1]=0x01;
 						msg_tx[2]=0x14;
 						msg_tx[3]=calculateBCC(msg_tx, 4,1);
-			      HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);}
+			      HAL_UART_Transmit_IT(&huart1, msg_tx, 4);}
 				else{
 						msg_tx[0]=0x01;
 						msg_tx[1]=0xFF;
@@ -180,14 +196,19 @@ void Check_Protocol(){ // Protocol ---------------------------------------------
 			break;
 		
 		case(0x02): // GAME SELECT
-			  
+
 		    if(calculateBCC(msg_rx, 5, 0 )){ // CHECK CORRECT BCC	
 					
 					
 					if( ((int)msg_rx[1] == 0x0E) &&( !(int)msg_rx[2] && !(int)msg_rx[3]))  {// PC choosing game (XX-number of game)--------------------------
-						HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "pig\n\r"), 0xFFFF); // NEED REMAKE STM > PC     X_S/Y_S - size of map
+						msg_tx[0]=0x02;
+						msg_tx[1]=0x0E;
+						msg_tx[2]=SCREEN_WIDTH;
+						msg_tx[3]=SCREEN_HEIGHT;
+						msg_tx[4] =calculateBCC(msg_tx, 5,1);		
+						HAL_UART_Transmit(&huart1,msg_tx,5,0xFFFF); // NEED REMAKE STM > PC     X_S/Y_S - size of map
 						paused = 0;
-						game_req=1;
+									 
 					}
 					else if((int)msg_rx[1] != 0x0E){ // NOT CORRECT GAME 
 						msg_tx[0]=0x02;
@@ -231,24 +252,9 @@ void Check_Protocol(){ // Protocol ---------------------------------------------
 
 
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){          // PROBABLY NEED CALLBACK REWORK :3
-	    HAL_UART_Transmit(&huart1, msg_tx,  sprintf((char *)msg_tx, "1- %x      ", msg_rx[0] )  , 0xFFFF);
-		HAL_UART_Transmit(&huart1, msg_tx,  sprintf((char *)msg_tx, "2- %x      ", msg_rx[1] )  , 0xFFFF);
-		HAL_UART_Transmit(&huart1, msg_tx,  sprintf((char *)msg_tx, "3- %x      ", msg_rx[2] )  , 0xFFFF);	
-	
-	Check_Protocol();
-}
 
 
 
-
-void reset_game() {
-    ball_x = 8;
-    ball_y = 8;
-    platform_x = 6;
-    platform_y = SCREEN_HEIGHT - 4;
-    game_over = 0;
-}
 
 void update_game() {
     if (!game_over) {
@@ -275,6 +281,7 @@ void update_game() {
 }
 
 
+
 void send_game_state() { // SEND COORDINATES -------------------------------------
     				msg_tx[0]=0x03;
 						msg_tx[1]=ball_x;
@@ -284,44 +291,37 @@ void send_game_state() { // SEND COORDINATES -----------------------------------
 	          msg_tx[5]=calculateBCC(msg_tx, 6,1);
 						//HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, " code %x, bx %f, by %f , px %f, py %f  -----", 0x03, ball_x, ball_y, platform_x, platform_y), 0xFFFF);
 		       
-	         
-						HAL_UART_Transmit(&huart1, *ca, 6 , 0xFFFF);
+	        
 }
 
+
+
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){ // PROBABLY NEED CALLBACK REWORK :3
+	  Check_Protocol();
+	HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
+}
+
+
+
+
 int main(void) {
-    HAL_Init();
+	  HAL_Init();
     SystemClock_Config();
     MX_USART1_UART_Init();
-    HAL_UART_Receive_IT(&huart1, msg_rx, 3);
+	
 
-   /* while (game_type == 0 && game_type == 1) {
-        HAL_Delay(150); 
-    }*/
-
+		HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
     while (1) {
-			
-			
+				
 		if(connect_req){ // CONNECT ALLOW
-			if(paused){
-				if(!game_req){ // GAME GET
-					HAL_UART_Receive_IT(&huart1, msg_rx, 5);
-				}
-				else{ // CONTROL GET
-           HAL_UART_Receive_IT(&huart1, msg_rx, 3);	
-				}					
-			}
-        	else if (!paused) {
+        	if (!paused) {
             update_game();
-            send_game_state();
+           send_game_state();
 					HAL_Delay(50);
         }
-			
+	
 			}
-		 else {
-			 HAL_UART_Receive_IT(&huart1, msg_rx, 3);
-			 
-		 }
-    
 }
 
 }
@@ -437,6 +437,8 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+
 
 /* USER CODE END 4 */
 
