@@ -297,7 +297,7 @@ void send_game_state() { // SEND COORDINATES -----------------------------------
 
 
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){ // PROBABLY NEED CALLBACK REWORK :3
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){ // PROBABLY NEED CALLBACK REWORK :3 Again
 	  Check_Protocol();
 	HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
 }
