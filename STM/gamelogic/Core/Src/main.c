@@ -94,14 +94,14 @@ bool paused = 0;  // Paused default status
 int game_type = 0;  // 0 - Pong, 1 - Snake
 bool connect_req = 0;
 bool game_req=0;
-
+bool ISR=0;
 bool *ptrPaused = &paused;
 uint8_t msg_rx[16];
 uint8_t msg_tx[128];
 
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){ // PROBABLY NEED CALLBACK REWORK :3
-  HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
+	ISR=1; 
 }
 
 
@@ -113,7 +113,15 @@ int main(void) {
 
 		HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
     while (1) {
+			
+			if(ISR){
+				
 			Check_Protocol();
+		  ISR=0;
+			}
+			else{
+					HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
+			}
           if (paused) {
           send_game_state();
 					update_game();
