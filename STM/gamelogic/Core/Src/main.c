@@ -102,7 +102,7 @@ uint8_t msg_tx[128];
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){ // PROBABLY NEED CALLBACK REWORK :3
   HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
-
+}
 
 
 
