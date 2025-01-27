@@ -59,6 +59,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART1_UART_Init(void);
+
 /* USER CODE BEGIN PFP */
 int Get_float(float number);
 int calculateBCC(uint8_t *data, int length, bool get);
@@ -100,12 +101,13 @@ uint8_t msg_rx[16];
 uint8_t msg_tx[128];
 
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){ // PROBABLY NEED CALLBACK REWORK :3
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){ 
 	ISR=1; 
 }
 
 
 
+//  ----------------------------------------------------------------------- S_MAIN -----------------------------------------------------------------------
 int main(void) {
 	  HAL_Init();
     SystemClock_Config();
@@ -114,25 +116,31 @@ int main(void) {
 		HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
     while (1) {
 			
-			if(ISR){
-				
-			Check_Protocol();
-		  ISR=0;
+			if(ISR){		
+				Check_Protocol();
+				ISR=0;
 			}
+			
 			else{
-					HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
+				HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
 			}
-          if (paused) {
-          send_game_state();
-					update_game();
-					HAL_Delay(50);
-        }
+			
+      if(!paused) {
+        send_game_state();
+				update_game();
+				HAL_Delay(50);
+     }
 
 }
 
 }
 
+// --------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
+// ----------------------------------------------------------------------- S_STM -----------------------------------------------------------------------
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -244,82 +252,20 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_2 */
 }
 
-/* USER CODE BEGIN 4 */
-int Get_float(float number){
-    return ((int)number==number) ?  (( (int)number << 1 ) | 0) : (( (int)number << 1 ) | 1) ;
-};
 
-int calculateBCC(uint8_t *data, int length, bool get) {// BCC CALCULATION 1-true 0-false	
-	
-   int checksum = 0;
-	if(!get){
-			
-    for (int i = 0; i < length-1; i++)
-    {
-        checksum ^= (int)data[i];
-	
 
-				
-    }
-	
-		if(	checksum == data[length-1]){
-    return 1;
-		}
-		else{
-			return 0;
-		}
-	}
-	else if(get) {
-
-		  for (int i = 0; i < length-1; i++)
-    {
-        checksum ^= (int)data[i];
-			
-    }
-
-	
-
-	
-		
-	}
-		return checksum;
-}
-void game_control(){ 
-		if (msg_rx[1] == 'a' && !paused && platform_x > 1) {
-            platform_x -= 1;
-			}
-		else if ((char)msg_rx[1] == 'd' && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
-            platform_x += 1;
-      }
-		else if (((char)msg_rx[1] == 'r') && !paused ){
-					reset_game();
-			}
-		else if ((char)msg_rx[1] == 'p'){
-					paused = !paused; // Toggle pause state
-			}
-		else if((int)msg_rx[1] == 33){ // ASCII 033 = ESC
-				 msg_tx[0] = 0x01;
-				 msg_tx[1] = 0x01;
-				 msg_tx[2] = calculateBCC(msg_tx, 3, 1);
-				 HAL_UART_Transmit(&huart1, msg_tx, 3 , 0xFFFF);
-		     game_req=0;
-			}
-				 
-					 
-					msg_tx[0] = 0x03;
-					msg_tx[1] = ball_x;
-					msg_tx[2] = ball_y;
-					msg_tx[3] = platform_x;
-					msg_tx[4] = platform_y;
-					msg_tx[5] = calculateBCC(msg_tx, 8, 1);
-
-        HAL_UART_Receive_IT(&huart1, msg_rx, 1);
-					 
-}
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 
+
+
+
+
+
+
+/* //  ----------------------------------------------------------------------- FUNCTIONS -----------------------------------------------------------------------  */
 
 void Check_Protocol(){ // Protocol --------------------------------------------------------------------------------
 
@@ -358,8 +304,9 @@ void Check_Protocol(){ // Protocol ---------------------------------------------
 						msg_tx[3]=SCREEN_HEIGHT;
 						msg_tx[4] =calculateBCC(msg_tx, 5,1);	
 						HAL_UART_Transmit(&huart1,msg_tx,5,0xFFFF); // NEED REMAKE STM > PC     X_S/Y_S - size of map
-						paused=1;
+					  send_game_state();
 					  game_req =1;
+					  
 						
 									 
 					}
@@ -400,7 +347,96 @@ void Check_Protocol(){ // Protocol ---------------------------------------------
 		break;
  }
 }
-void reset_game() {
+
+
+int Get_float(float number){ // FIXED POINT NUMBER GET _-----------------------------------------------------------
+    return ((int)number==number) ?  (( (int)number << 1 ) | 0) : (( (int)number << 1 ) | 1) ;
+};
+
+
+
+int calculateBCC(uint8_t *data, int length, bool get) {// BCC CALCULATION 1-true 0-false	
+	
+   int checksum = 0;
+	if(!get){
+			
+    for (int i = 0; i < length-1; i++)
+    {
+        checksum ^= (int)data[i];
+	
+
+				
+    }
+	
+		if(	checksum == data[length-1]){
+    return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else if(get) {
+
+		  for (int i = 0; i < length-1; i++)
+    {
+        checksum ^= (int)data[i];
+			
+    }
+
+	
+
+	
+		
+	}
+		return checksum;
+}
+
+
+void game_control(){ // GET KEY FROM USERS --------------------------------------
+		if (msg_rx[1] == 'a' && !paused && platform_x > 1) {
+            platform_x -= 1;
+			}
+		else if ((char)msg_rx[1] == 'd' && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
+            platform_x += 1;
+      }
+		else if (((char)msg_rx[1] == 'r') && !paused ){
+					reset_game();
+			}
+		else if ((char)msg_rx[1] == 'p'){
+					paused = 1; // Toggle pause state
+			}
+		else if((int)msg_rx[1] ==13){
+
+        paused = 0;
+
+    }			
+		else if((int)msg_rx[1] == 33){ // ASCII 033 = ESC
+				 msg_tx[0] = 0x01;
+				 msg_tx[1] = 0x01;
+				 msg_tx[2] = calculateBCC(msg_tx, 3, 1);
+				 HAL_UART_Transmit(&huart1, msg_tx, 3 , 0xFFFF);
+		     game_req=0;
+			}
+				 
+					 
+					msg_tx[0] = 0x03;
+					msg_tx[1] = ball_x;
+					msg_tx[2] = ball_y;
+					msg_tx[3] = platform_x;
+					msg_tx[4] = platform_y;
+					msg_tx[5] = calculateBCC(msg_tx, 8, 1);
+
+        HAL_UART_Receive_IT(&huart1, msg_rx, 1);
+					 
+}
+
+
+
+
+
+
+
+void reset_game() { // GAME RESET -----------------------------------------------
     ball_x = 8;
     ball_y = 8;
     platform_x = 6;
@@ -408,7 +444,9 @@ void reset_game() {
     game_over = 0;
 }
 
-void update_game() {
+
+
+void update_game() { // UPDATE GAME STATE ----------------------------------------
     if (!game_over) {
         ball_x += ball_dx;
         ball_y += ball_dy;
@@ -434,6 +472,8 @@ void update_game() {
 
 
 
+
+
 void send_game_state() { // SEND COORDINATES -------------------------------------
     				msg_tx[0]=0x03;
 						msg_tx[1]=Get_float(ball_x);
@@ -450,7 +490,46 @@ void send_game_state() { // SEND COORDINATES -----------------------------------
 
 
 
-/* USER CODE END 4 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///* //  ----------------------------------------------------------------------- CONFIGURATION -----------------------------------------------------------------------  
+
 
 /**
   * @brief  This function is executed in case of error occurrence.
