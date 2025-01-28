@@ -79,8 +79,8 @@ void send_game_state(void);
   * @brief  The application entry point.
   * @retval int
   */
-int SCREEN_WIDTH = 40;
-int const SCREEN_HEIGHT = 20;
+int  SCREEN_WIDTH = 16;
+int const SCREEN_HEIGHT = 32;
 int PLATFORM_WIDTH = 4;
 
 float ball_x = 8;
@@ -91,12 +91,13 @@ float ball_dy = 0.5;
 float platform_x = 6;
 float platform_y = SCREEN_HEIGHT - 4;
 bool game_over = 0;
-bool paused = 0;  // Paused default status
+bool paused = 1;  // Paused default status
 int game_type = 0;  // 0 - Pong, 1 - Snake
 bool connect_req = 0;
 bool game_req=0;
 bool ISR=0;
-bool *ptrPaused = &paused;
+
+//Massive
 uint8_t msg_rx[16];
 uint8_t msg_tx[128];
 
@@ -115,17 +116,15 @@ int main(void) {
 
 		HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
     while (1) {
-			
 			if(ISR){		
 				Check_Protocol();
 				ISR=0;
 			}
-			
 			else{
 				HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
 			}
 			
-      if(!paused) {
+			if(!paused) {
         send_game_state();
 				update_game();
 				HAL_Delay(50);
@@ -304,7 +303,6 @@ void Check_Protocol(){ // Protocol ---------------------------------------------
 						msg_tx[3]=SCREEN_HEIGHT;
 						msg_tx[4] =calculateBCC(msg_tx, 5,1);	
 						HAL_UART_Transmit(&huart1,msg_tx,5,0xFFFF); // NEED REMAKE STM > PC     X_S/Y_S - size of map
-					  send_game_state();
 					  game_req =1;
 					  
 						
@@ -393,41 +391,24 @@ int calculateBCC(uint8_t *data, int length, bool get) {// BCC CALCULATION 1-true
 
 
 void game_control(){ // GET KEY FROM USERS --------------------------------------
-		if (msg_rx[1] == 'a' && !paused && platform_x > 1) {
-            platform_x -= 1;
+		if ((int)msg_rx[1] == 141 && !paused && platform_x > 1) {
+            platform_x -= 2;
 			}
-		else if ((char)msg_rx[1] == 'd' && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
-            platform_x += 1;
+		else if ((int)msg_rx[1] == 144 && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
+            platform_x += 2;
       }
-		else if (((char)msg_rx[1] == 'r') && !paused ){
+		else if (((int)msg_rx[1] == 162) && !paused ){
 					reset_game();
 			}
-		else if ((char)msg_rx[1] == 'p'){
+		else if ((int)msg_rx[1] == 160){
 					paused = 1; // Toggle pause state
 			}
 		else if((int)msg_rx[1] ==13){
-
         paused = 0;
 
     }			
-		else if((int)msg_rx[1] == 33){ // ASCII 033 = ESC
-				 msg_tx[0] = 0x01;
-				 msg_tx[1] = 0x01;
-				 msg_tx[2] = calculateBCC(msg_tx, 3, 1);
-				 HAL_UART_Transmit(&huart1, msg_tx, 3 , 0xFFFF);
-		     game_req=0;
-			}
-				 
-					 
-					msg_tx[0] = 0x03;
-					msg_tx[1] = ball_x;
-					msg_tx[2] = ball_y;
-					msg_tx[3] = platform_x;
-					msg_tx[4] = platform_y;
-					msg_tx[5] = calculateBCC(msg_tx, 8, 1);
 
-        HAL_UART_Receive_IT(&huart1, msg_rx, 1);
-					 
+									 
 }
 
 
