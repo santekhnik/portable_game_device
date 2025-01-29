@@ -2,7 +2,7 @@ import serial
 import time
 
 # Відкриваємо серійний порт
-ser = serial.Serial('COM16', 115200, timeout=1)
+ser = serial.Serial('COM15', 115200, timeout=1)
 
 
 def calculate_bcc(data):
@@ -27,19 +27,20 @@ def read_response():
 
 
 if __name__ == "__main__":
-    arr = [1, 6]  # Список байтів для передачі
+    arr = [1, 0]  # Список байтів для передачі
+    arr1 = [2,14,0,0]
     bcc = calculate_bcc(arr)  # Обчислення контрольної суми
+    bcc1 = calculate_bcc(arr1)  # Обчислення контрольної суми
     arr.append(bcc)  # Додаємо контрольну суму до масиву
+    arr1.append(bcc1)  # Додаємо контрольну суму до масиву
 
     print("Checksum:", hex(bcc))
-    print("Data to send:", [hex(x) for x in arr])  # Переведемо байти в hex для кращого вигляду
+    print("Data to send:", [hex(x) for x in arr1])  # Переведемо байти в hex для кращого вигляду
 
     # Відправляємо перші дані
 
-
-    while True:
+    I=1
+    ser.write(arr1)
+    while (I==1):
+        time.sleep(0.1)
         print("Response from STM32:", read_response())
-        ser.write(arr)
-        time.sleep(0.5)
-
-        time.sleep(0.1)  # Затримка перед наступною перевіркою
