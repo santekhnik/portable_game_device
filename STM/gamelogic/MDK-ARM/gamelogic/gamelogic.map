@@ -899,7 +899,7 @@ Removing Unused input sections from the image.
     Removing main.o(.ARM.exidx.text.SystemClock_Config), (8 bytes).
     Removing main.o(.text.send_game_state), (148 bytes).
     Removing main.o(.ARM.exidx.text.send_game_state), (8 bytes).
-    Removing main.o(.text.update_game), (240 bytes).
+    Removing main.o(.text.update_game), (244 bytes).
     Removing main.o(.ARM.exidx.text.update_game), (8 bytes).
     Removing main.o(.ARM.exidx.text.Error_Handler), (8 bytes).
     Removing main.o(.ARM.exidx.text.Check_Protocol), (8 bytes).
@@ -1446,7 +1446,7 @@ Removing Unused input sections from the image.
     Removing system_stm32f0xx.o(.text.SystemCoreClockUpdate), (92 bytes).
     Removing system_stm32f0xx.o(.ARM.exidx.text.SystemCoreClockUpdate), (8 bytes).
 
-553 unused section(s) (total 30972 bytes) removed from the image.
+553 unused section(s) (total 30976 bytes) removed from the image.
 
 ==============================================================================
 
@@ -1730,40 +1730,41 @@ Image Symbol Table
     [Anonymous Symbol]                       0x08002040   Section        0  stm32f0xx_it.o(.text.USART1_IRQHandler)
     [Anonymous Symbol]                       0x0800204c   Section        0  main.o(.text.game_control)
     [Anonymous Symbol]                       0x080020d4   Section        0  main.o(.text.main)
-    __arm_cp.1_0                             0x08002314   Number         4  main.o(.text.main)
-    __arm_cp.1_1                             0x08002318   Number         4  main.o(.text.main)
-    __arm_cp.1_2                             0x0800231c   Number         4  main.o(.text.main)
-    __arm_cp.1_3                             0x08002320   Number         4  main.o(.text.main)
-    __arm_cp.1_4                             0x08002324   Number         4  main.o(.text.main)
-    __arm_cp.1_5                             0x08002328   Number         4  main.o(.text.main)
-    __arm_cp.1_6                             0x0800232c   Number         4  main.o(.text.main)
-    __arm_cp.1_7                             0x08002330   Number         4  main.o(.text.main)
-    .text_divfast                            0x08002334   Section      502  aeabi_sdivfast.o(.text_divfast)
-    i._feq                                   0x0800252a   Section        0  fcmp.o(i._feq)
-    i._fgeq                                  0x08002540   Section        0  fcmp.o(i._fgeq)
-    i._fgr                                   0x08002556   Section        0  fcmp.o(i._fgr)
-    i._fleq                                  0x0800256c   Section        0  fcmp.o(i._fleq)
-    i._fls                                   0x08002586   Section        0  fcmp.o(i._fls)
-    x$fpl$fadd                               0x0800259c   Section      140  faddsub.o(x$fpl$fadd)
-    _fadd1                                   0x080025a9   Thumb Code     0  faddsub.o(x$fpl$fadd)
-    x$fpl$feqf                               0x08002628   Section       84  feqf.o(x$fpl$feqf)
-    x$fpl$fgeqf                              0x0800267c   Section       84  fgef.o(x$fpl$fgeqf)
-    x$fpl$fleqf                              0x080026d0   Section       84  flef.o(x$fpl$fleqf)
-    x$fpl$fsub                               0x08002724   Section      208  faddsub.o(x$fpl$fsub)
-    _fsub1                                   0x08002731   Thumb Code     0  faddsub.o(x$fpl$fsub)
-    x$fpl$usenofp                            0x080027f4   Section        0  usenofp.o(x$fpl$usenofp)
-    HAL_RCC_GetSysClockFreq.aPLLMULFactorTable 0x0800280c   Data          16  stm32f0xx_hal_rcc.o(.rodata.cst16)
-    [Anonymous Symbol]                       0x0800280c   Section        0  stm32f0xx_hal_rcc.o(.rodata.cst16)
-    HAL_RCC_GetSysClockFreq.aPredivFactorTable 0x0800281c   Data          16  stm32f0xx_hal_rcc.o(.rodata.cst16)
+    __arm_cp.1_0                             0x0800230c   Number         4  main.o(.text.main)
+    __arm_cp.1_1                             0x08002310   Number         4  main.o(.text.main)
+    __arm_cp.1_2                             0x08002314   Number         4  main.o(.text.main)
+    __arm_cp.1_3                             0x08002318   Number         4  main.o(.text.main)
+    __arm_cp.1_4                             0x0800231c   Number         4  main.o(.text.main)
+    __arm_cp.1_5                             0x08002320   Number         4  main.o(.text.main)
+    __arm_cp.1_6                             0x08002324   Number         4  main.o(.text.main)
+    __arm_cp.1_7                             0x08002328   Number         4  main.o(.text.main)
+    __arm_cp.1_8                             0x0800232c   Number         4  main.o(.text.main)
+    .text_divfast                            0x08002330   Section      502  aeabi_sdivfast.o(.text_divfast)
+    i._feq                                   0x08002526   Section        0  fcmp.o(i._feq)
+    i._fgeq                                  0x0800253c   Section        0  fcmp.o(i._fgeq)
+    i._fgr                                   0x08002552   Section        0  fcmp.o(i._fgr)
+    i._fleq                                  0x08002568   Section        0  fcmp.o(i._fleq)
+    i._fls                                   0x08002582   Section        0  fcmp.o(i._fls)
+    x$fpl$fadd                               0x08002598   Section      140  faddsub.o(x$fpl$fadd)
+    _fadd1                                   0x080025a5   Thumb Code     0  faddsub.o(x$fpl$fadd)
+    x$fpl$feqf                               0x08002624   Section       84  feqf.o(x$fpl$feqf)
+    x$fpl$fgeqf                              0x08002678   Section       84  fgef.o(x$fpl$fgeqf)
+    x$fpl$fleqf                              0x080026cc   Section       84  flef.o(x$fpl$fleqf)
+    x$fpl$fsub                               0x08002720   Section      208  faddsub.o(x$fpl$fsub)
+    _fsub1                                   0x0800272d   Thumb Code     0  faddsub.o(x$fpl$fsub)
+    x$fpl$usenofp                            0x080027f0   Section        0  usenofp.o(x$fpl$usenofp)
+    HAL_RCC_GetSysClockFreq.aPLLMULFactorTable 0x08002808   Data          16  stm32f0xx_hal_rcc.o(.rodata.cst16)
+    [Anonymous Symbol]                       0x08002808   Section        0  stm32f0xx_hal_rcc.o(.rodata.cst16)
+    HAL_RCC_GetSysClockFreq.aPredivFactorTable 0x08002818   Data          16  stm32f0xx_hal_rcc.o(.rodata.cst16)
     [Anonymous Symbol]                       0x20000000   Section        0  main.o(.data..L_MergedGlobals)
-    [Anonymous Symbol]                       0x20000028   Section        0  stm32f0xx_hal.o(.data..L_MergedGlobals)
-    .bss                                     0x20000038   Section       96  libspace.o(.bss)
-    [Anonymous Symbol]                       0x20000098   Section        0  main.o(.bss..L_MergedGlobals.1)
-    Heap_Mem                                 0x20000240   Data         512  startup_stm32f051x8.o(HEAP)
-    HEAP                                     0x20000240   Section      512  startup_stm32f051x8.o(HEAP)
-    Stack_Mem                                0x20000440   Data        1024  startup_stm32f051x8.o(STACK)
-    STACK                                    0x20000440   Section     1024  startup_stm32f051x8.o(STACK)
-    __initial_sp                             0x20000840   Data           0  startup_stm32f051x8.o(STACK)
+    [Anonymous Symbol]                       0x20000024   Section        0  stm32f0xx_hal.o(.data..L_MergedGlobals)
+    .bss                                     0x20000030   Section       96  libspace.o(.bss)
+    [Anonymous Symbol]                       0x20000090   Section        0  main.o(.bss..L_MergedGlobals.1)
+    Heap_Mem                                 0x20000238   Data         512  startup_stm32f051x8.o(HEAP)
+    HEAP                                     0x20000238   Section      512  startup_stm32f051x8.o(HEAP)
+    Stack_Mem                                0x20000438   Data        1024  startup_stm32f051x8.o(STACK)
+    STACK                                    0x20000438   Section     1024  startup_stm32f051x8.o(STACK)
+    __initial_sp                             0x20000838   Data           0  startup_stm32f051x8.o(STACK)
 
     Global Symbols
 
@@ -1957,33 +1958,33 @@ Image Symbol Table
     UART_WaitOnFlagUntilTimeout              0x08001e85   Thumb Code   444  stm32f0xx_hal_uart.o(.text.UART_WaitOnFlagUntilTimeout)
     USART1_IRQHandler                        0x08002041   Thumb Code    12  stm32f0xx_it.o(.text.USART1_IRQHandler)
     game_control                             0x0800204d   Thumb Code   136  main.o(.text.game_control)
-    main                                     0x080020d5   Thumb Code   576  main.o(.text.main)
-    __aeabi_uidiv                            0x08002335   Thumb Code    68  aeabi_sdivfast.o(.text_divfast)
-    __aeabi_idiv                             0x08002379   Thumb Code   434  aeabi_sdivfast.o(.text_divfast)
-    __aeabi_fcmpeq                           0x0800252b   Thumb Code     0  fcmp.o(i._feq)
-    _feq                                     0x0800252b   Thumb Code    22  fcmp.o(i._feq)
-    __aeabi_fcmpge                           0x08002541   Thumb Code     0  fcmp.o(i._fgeq)
-    _fgeq                                    0x08002541   Thumb Code    22  fcmp.o(i._fgeq)
-    __aeabi_fcmpgt                           0x08002557   Thumb Code     0  fcmp.o(i._fgr)
-    _fgr                                     0x08002557   Thumb Code    22  fcmp.o(i._fgr)
-    __aeabi_fcmple                           0x0800256d   Thumb Code     0  fcmp.o(i._fleq)
-    _fleq                                    0x0800256d   Thumb Code    26  fcmp.o(i._fleq)
-    __aeabi_fcmplt                           0x08002587   Thumb Code     0  fcmp.o(i._fls)
-    _fls                                     0x08002587   Thumb Code    22  fcmp.o(i._fls)
-    __aeabi_fadd                             0x0800259d   Thumb Code     0  faddsub.o(x$fpl$fadd)
-    _fadd                                    0x0800259d   Thumb Code   134  faddsub.o(x$fpl$fadd)
-    __aeabi_cfcmpeq                          0x08002629   Thumb Code     0  feqf.o(x$fpl$feqf)
-    _fcmpeq                                  0x08002629   Thumb Code    78  feqf.o(x$fpl$feqf)
-    _fcmpge                                  0x0800267d   Thumb Code    78  fgef.o(x$fpl$fgeqf)
-    __aeabi_cfcmple                          0x080026d1   Thumb Code     0  flef.o(x$fpl$fleqf)
-    _fcmple                                  0x080026d1   Thumb Code    78  flef.o(x$fpl$fleqf)
-    __aeabi_fsub                             0x08002725   Thumb Code     0  faddsub.o(x$fpl$fsub)
-    _fsub                                    0x08002725   Thumb Code   204  faddsub.o(x$fpl$fsub)
-    AHBPrescTable                            0x080027f4   Data          16  system_stm32f0xx.o(.rodata.AHBPrescTable)
-    __I$use$fp                               0x080027f4   Number         0  usenofp.o(x$fpl$usenofp)
-    APBPrescTable                            0x08002804   Data           8  system_stm32f0xx.o(.rodata.APBPrescTable)
-    Region$$Table$$Base                      0x0800282c   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x0800284c   Number         0  anon$$obj.o(Region$$Table)
+    main                                     0x080020d5   Thumb Code   568  main.o(.text.main)
+    __aeabi_uidiv                            0x08002331   Thumb Code    68  aeabi_sdivfast.o(.text_divfast)
+    __aeabi_idiv                             0x08002375   Thumb Code   434  aeabi_sdivfast.o(.text_divfast)
+    __aeabi_fcmpeq                           0x08002527   Thumb Code     0  fcmp.o(i._feq)
+    _feq                                     0x08002527   Thumb Code    22  fcmp.o(i._feq)
+    __aeabi_fcmpge                           0x0800253d   Thumb Code     0  fcmp.o(i._fgeq)
+    _fgeq                                    0x0800253d   Thumb Code    22  fcmp.o(i._fgeq)
+    __aeabi_fcmpgt                           0x08002553   Thumb Code     0  fcmp.o(i._fgr)
+    _fgr                                     0x08002553   Thumb Code    22  fcmp.o(i._fgr)
+    __aeabi_fcmple                           0x08002569   Thumb Code     0  fcmp.o(i._fleq)
+    _fleq                                    0x08002569   Thumb Code    26  fcmp.o(i._fleq)
+    __aeabi_fcmplt                           0x08002583   Thumb Code     0  fcmp.o(i._fls)
+    _fls                                     0x08002583   Thumb Code    22  fcmp.o(i._fls)
+    __aeabi_fadd                             0x08002599   Thumb Code     0  faddsub.o(x$fpl$fadd)
+    _fadd                                    0x08002599   Thumb Code   134  faddsub.o(x$fpl$fadd)
+    __aeabi_cfcmpeq                          0x08002625   Thumb Code     0  feqf.o(x$fpl$feqf)
+    _fcmpeq                                  0x08002625   Thumb Code    78  feqf.o(x$fpl$feqf)
+    _fcmpge                                  0x08002679   Thumb Code    78  fgef.o(x$fpl$fgeqf)
+    __aeabi_cfcmple                          0x080026cd   Thumb Code     0  flef.o(x$fpl$fleqf)
+    _fcmple                                  0x080026cd   Thumb Code    78  flef.o(x$fpl$fleqf)
+    __aeabi_fsub                             0x08002721   Thumb Code     0  faddsub.o(x$fpl$fsub)
+    _fsub                                    0x08002721   Thumb Code   204  faddsub.o(x$fpl$fsub)
+    AHBPrescTable                            0x080027f0   Data          16  system_stm32f0xx.o(.rodata.AHBPrescTable)
+    __I$use$fp                               0x080027f0   Number         0  usenofp.o(x$fpl$usenofp)
+    APBPrescTable                            0x08002800   Data           8  system_stm32f0xx.o(.rodata.APBPrescTable)
+    Region$$Table$$Base                      0x08002828   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x08002848   Number         0  anon$$obj.o(Region$$Table)
     paused                                   0x20000000   Data           1  main.o(.data..L_MergedGlobals)
     SCREEN_WIDTH                             0x20000004   Data           4  main.o(.data..L_MergedGlobals)
     PLATFORM_WIDTH                           0x20000008   Data           4  main.o(.data..L_MergedGlobals)
@@ -1993,22 +1994,21 @@ Image Symbol Table
     ball_dy                                  0x20000018   Data           4  main.o(.data..L_MergedGlobals)
     platform_x                               0x2000001c   Data           4  main.o(.data..L_MergedGlobals)
     platform_y                               0x20000020   Data           4  main.o(.data..L_MergedGlobals)
-    ptrPaused                                0x20000024   Data           4  main.o(.data..L_MergedGlobals)
-    uwTickFreq                               0x20000028   Data           1  stm32f0xx_hal.o(.data..L_MergedGlobals)
-    uwTickPrio                               0x2000002c   Data           4  stm32f0xx_hal.o(.data..L_MergedGlobals)
-    SystemCoreClock                          0x20000030   Data           4  system_stm32f0xx.o(.data.SystemCoreClock)
-    __libspace_start                         0x20000038   Data          96  libspace.o(.bss)
-    __temporary_stack_top$libspace           0x20000098   Data           0  libspace.o(.bss)
-    game_over                                0x20000098   Data           1  main.o(.bss..L_MergedGlobals.1)
-    connect_req                              0x20000099   Data           1  main.o(.bss..L_MergedGlobals.1)
-    game_req                                 0x2000009a   Data           1  main.o(.bss..L_MergedGlobals.1)
-    ISR                                      0x2000009b   Data           1  main.o(.bss..L_MergedGlobals.1)
-    msg_rx                                   0x2000009c   Data          16  main.o(.bss..L_MergedGlobals.1)
-    hdma_usart1_rx                           0x200000ac   Data          68  main.o(.bss.hdma_usart1_rx)
-    hdma_usart1_tx                           0x200000f0   Data          68  main.o(.bss.hdma_usart1_tx)
-    huart1                                   0x20000134   Data         136  main.o(.bss.huart1)
-    msg_tx                                   0x200001bc   Data         128  main.o(.bss.msg_tx)
-    uwTick                                   0x2000023c   Data           4  stm32f0xx_hal.o(.bss.uwTick)
+    uwTickFreq                               0x20000024   Data           1  stm32f0xx_hal.o(.data..L_MergedGlobals)
+    uwTickPrio                               0x20000028   Data           4  stm32f0xx_hal.o(.data..L_MergedGlobals)
+    SystemCoreClock                          0x2000002c   Data           4  system_stm32f0xx.o(.data.SystemCoreClock)
+    __libspace_start                         0x20000030   Data          96  libspace.o(.bss)
+    __temporary_stack_top$libspace           0x20000090   Data           0  libspace.o(.bss)
+    game_over                                0x20000090   Data           1  main.o(.bss..L_MergedGlobals.1)
+    connect_req                              0x20000091   Data           1  main.o(.bss..L_MergedGlobals.1)
+    game_req                                 0x20000092   Data           1  main.o(.bss..L_MergedGlobals.1)
+    ISR                                      0x20000093   Data           1  main.o(.bss..L_MergedGlobals.1)
+    msg_rx                                   0x20000094   Data          16  main.o(.bss..L_MergedGlobals.1)
+    hdma_usart1_rx                           0x200000a4   Data          68  main.o(.bss.hdma_usart1_rx)
+    hdma_usart1_tx                           0x200000e8   Data          68  main.o(.bss.hdma_usart1_tx)
+    huart1                                   0x2000012c   Data         136  main.o(.bss.huart1)
+    msg_tx                                   0x200001b4   Data         128  main.o(.bss.msg_tx)
+    uwTick                                   0x20000234   Data           4  stm32f0xx_hal.o(.bss.uwTick)
 
 
 
@@ -2018,9 +2018,9 @@ Memory Map of the image
 
   Image Entry point : 0x080000bd
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00002888, Max: 0x00010000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00002878, Max: 0x00010000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x0000284c, Max: 0x00010000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00002848, Max: 0x00010000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -2147,42 +2147,41 @@ Memory Map of the image
     0x08001e84   0x08001e84   0x000001bc   Code   RO          107    .text.UART_WaitOnFlagUntilTimeout  stm32f0xx_hal_uart.o
     0x08002040   0x08002040   0x0000000c   Code   RO           62    .text.USART1_IRQHandler  stm32f0xx_it.o
     0x0800204c   0x0800204c   0x00000088   Code   RO           27    .text.game_control  main.o
-    0x080020d4   0x080020d4   0x00000260   Code   RO           13    .text.main          main.o
-    0x08002334   0x08002334   0x000001f6   Code   RO          764    .text_divfast       c_p.l(aeabi_sdivfast.o)
-    0x0800252a   0x0800252a   0x00000016   Code   RO          787    i._feq              fz_ps.l(fcmp.o)
-    0x08002540   0x08002540   0x00000016   Code   RO          788    i._fgeq             fz_ps.l(fcmp.o)
-    0x08002556   0x08002556   0x00000016   Code   RO          789    i._fgr              fz_ps.l(fcmp.o)
-    0x0800256c   0x0800256c   0x0000001a   Code   RO          790    i._fleq             fz_ps.l(fcmp.o)
-    0x08002586   0x08002586   0x00000016   Code   RO          791    i._fls              fz_ps.l(fcmp.o)
-    0x0800259c   0x0800259c   0x0000008c   Code   RO          775    x$fpl$fadd          fz_ps.l(faddsub.o)
-    0x08002628   0x08002628   0x00000054   Code   RO          814    x$fpl$feqf          fz_ps.l(feqf.o)
-    0x0800267c   0x0800267c   0x00000054   Code   RO          816    x$fpl$fgeqf         fz_ps.l(fgef.o)
-    0x080026d0   0x080026d0   0x00000054   Code   RO          818    x$fpl$fleqf         fz_ps.l(flef.o)
-    0x08002724   0x08002724   0x000000d0   Code   RO          777    x$fpl$fsub          fz_ps.l(faddsub.o)
-    0x080027f4   0x080027f4   0x00000000   Code   RO          820    x$fpl$usenofp       fz_ps.l(usenofp.o)
-    0x080027f4   0x080027f4   0x00000010   Data   RO          750    .rodata.AHBPrescTable  system_stm32f0xx.o
-    0x08002804   0x08002804   0x00000008   Data   RO          751    .rodata.APBPrescTable  system_stm32f0xx.o
-    0x0800280c   0x0800280c   0x00000020   Data   RO          273    .rodata.cst16       stm32f0xx_hal_rcc.o
-    0x0800282c   0x0800282c   0x00000020   Data   RO          998    Region$$Table       anon$$obj.o
+    0x080020d4   0x080020d4   0x0000025c   Code   RO           13    .text.main          main.o
+    0x08002330   0x08002330   0x000001f6   Code   RO          764    .text_divfast       c_p.l(aeabi_sdivfast.o)
+    0x08002526   0x08002526   0x00000016   Code   RO          787    i._feq              fz_ps.l(fcmp.o)
+    0x0800253c   0x0800253c   0x00000016   Code   RO          788    i._fgeq             fz_ps.l(fcmp.o)
+    0x08002552   0x08002552   0x00000016   Code   RO          789    i._fgr              fz_ps.l(fcmp.o)
+    0x08002568   0x08002568   0x0000001a   Code   RO          790    i._fleq             fz_ps.l(fcmp.o)
+    0x08002582   0x08002582   0x00000016   Code   RO          791    i._fls              fz_ps.l(fcmp.o)
+    0x08002598   0x08002598   0x0000008c   Code   RO          775    x$fpl$fadd          fz_ps.l(faddsub.o)
+    0x08002624   0x08002624   0x00000054   Code   RO          814    x$fpl$feqf          fz_ps.l(feqf.o)
+    0x08002678   0x08002678   0x00000054   Code   RO          816    x$fpl$fgeqf         fz_ps.l(fgef.o)
+    0x080026cc   0x080026cc   0x00000054   Code   RO          818    x$fpl$fleqf         fz_ps.l(flef.o)
+    0x08002720   0x08002720   0x000000d0   Code   RO          777    x$fpl$fsub          fz_ps.l(faddsub.o)
+    0x080027f0   0x080027f0   0x00000000   Code   RO          820    x$fpl$usenofp       fz_ps.l(usenofp.o)
+    0x080027f0   0x080027f0   0x00000010   Data   RO          750    .rodata.AHBPrescTable  system_stm32f0xx.o
+    0x08002800   0x08002800   0x00000008   Data   RO          751    .rodata.APBPrescTable  system_stm32f0xx.o
+    0x08002808   0x08002808   0x00000020   Data   RO          273    .rodata.cst16       stm32f0xx_hal_rcc.o
+    0x08002828   0x08002828   0x00000020   Data   RO          998    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08002850, Size: 0x00000840, Max: 0x00002000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08002848, Size: 0x00000838, Max: 0x00002000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x08002850   0x00000028   Data   RW           40    .data..L_MergedGlobals  main.o
-    0x20000028   0x08002878   0x00000008   Data   RW          343    .data..L_MergedGlobals  stm32f0xx_hal.o
-    0x20000030   0x08002880   0x00000004   Data   RW          749    .data.SystemCoreClock  system_stm32f0xx.o
-    0x20000034   0x08002884   0x00000004   PAD
-    0x20000038        -       0x00000060   Zero   RW          860    .bss                c_p.l(libspace.o)
-    0x20000098        -       0x00000014   Zero   RW           41    .bss..L_MergedGlobals.1  main.o
-    0x200000ac        -       0x00000044   Zero   RW           37    .bss.hdma_usart1_rx  main.o
-    0x200000f0        -       0x00000044   Zero   RW           38    .bss.hdma_usart1_tx  main.o
-    0x20000134        -       0x00000088   Zero   RW           35    .bss.huart1         main.o
-    0x200001bc        -       0x00000080   Zero   RW           36    .bss.msg_tx         main.o
-    0x2000023c        -       0x00000004   Zero   RW          342    .bss.uwTick         stm32f0xx_hal.o
-    0x20000240        -       0x00000200   Zero   RW            2    HEAP                startup_stm32f051x8.o
-    0x20000440        -       0x00000400   Zero   RW            1    STACK               startup_stm32f051x8.o
+    0x20000000   0x08002848   0x00000024   Data   RW           40    .data..L_MergedGlobals  main.o
+    0x20000024   0x0800286c   0x00000008   Data   RW          343    .data..L_MergedGlobals  stm32f0xx_hal.o
+    0x2000002c   0x08002874   0x00000004   Data   RW          749    .data.SystemCoreClock  system_stm32f0xx.o
+    0x20000030        -       0x00000060   Zero   RW          860    .bss                c_p.l(libspace.o)
+    0x20000090        -       0x00000014   Zero   RW           41    .bss..L_MergedGlobals.1  main.o
+    0x200000a4        -       0x00000044   Zero   RW           37    .bss.hdma_usart1_rx  main.o
+    0x200000e8        -       0x00000044   Zero   RW           38    .bss.hdma_usart1_tx  main.o
+    0x2000012c        -       0x00000088   Zero   RW           35    .bss.huart1         main.o
+    0x200001b4        -       0x00000080   Zero   RW           36    .bss.msg_tx         main.o
+    0x20000234        -       0x00000004   Zero   RW          342    .bss.uwTick         stm32f0xx_hal.o
+    0x20000238        -       0x00000200   Zero   RW            2    HEAP                startup_stm32f051x8.o
+    0x20000438        -       0x00000400   Zero   RW            1    STACK               startup_stm32f051x8.o
 
 
 ==============================================================================
@@ -2192,7 +2191,7 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-       984         56          0         40        420      10629   main.o
+       980         60          0         36        420      10587   main.o
         56         26        188          0       1536        636   startup_stm32f051x8.o
        152          8          0          8          4       5376   stm32f0xx_hal.o
        132         24          0          0          0       5512   stm32f0xx_hal_cortex.o
@@ -2207,9 +2206,9 @@ Image component sizes
          2          0         24          4          0       1842   system_stm32f0xx.o
 
     ----------------------------------------------------------------------
-      8032        342        276         52       1964     105944   Object Totals
+      8028        346        276         48       1960     105902   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-         8          0          0          0          4          0   (incl. Padding)
+         8          0          0          0          0          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -2271,15 +2270,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     10040        390        276         52       2060     106760   Grand Totals
-     10040        390        276         52       2060     106760   ELF Image Totals
-     10040        390        276         52          0          0   ROM Totals
+     10036        394        276         48       2056     106718   Grand Totals
+     10036        394        276         48       2056     106718   ELF Image Totals
+     10036        394        276         48          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                10316 (  10.07kB)
-    Total RW  Size (RW Data + ZI Data)              2112 (   2.06kB)
-    Total ROM Size (Code + RO Data + RW Data)      10368 (  10.12kB)
+    Total RO  Size (Code + RO Data)                10312 (  10.07kB)
+    Total RW  Size (RW Data + ZI Data)              2104 (   2.05kB)
+    Total ROM Size (Code + RO Data + RW Data)      10360 (  10.12kB)
 
 ==============================================================================
 

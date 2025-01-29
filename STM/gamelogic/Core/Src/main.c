@@ -83,8 +83,8 @@ int  SCREEN_WIDTH = 20;
 int const SCREEN_HEIGHT = 40;
 int PLATFORM_WIDTH = 5;
 
-float ball_x = 8;
-float ball_y = 8;
+float ball_x = 10;
+float ball_y = 10;
 float ball_dx = 0.5;
 float ball_dy = 0.5;
 
@@ -417,8 +417,8 @@ void game_control(){ // GET KEY FROM USERS -------------------------------------
 
 
 void reset_game() { // GAME RESET -----------------------------------------------
-    ball_x = 8;
-    ball_y = 8;
+    ball_x = 10;
+    ball_y = 10;
     platform_x = 6;
     platform_y = SCREEN_HEIGHT - 4;
     game_over = 0;
