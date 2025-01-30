@@ -31,7 +31,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+#define FLASH_CONFIG_START_ADDR 	((uint32_t)0x0800F400)
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -51,6 +51,35 @@ DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
 
+//RX_TX_FLASH
+uint8_t msg_rx[16];
+uint8_t msg_tx[128];
+
+uint8_t scorebuf[1];
+
+// GAME PARAMETERS
+int  SCREEN_WIDTH = 16;
+int const SCREEN_HEIGHT = 32;
+int PLATFORM_WIDTH = 5;
+uint16_t score =0;
+
+
+float ball_x = 8;
+float ball_y = 8;
+float ball_dx = 0.5;
+float ball_dy = 0.5;
+float platform_x = 6;
+float platform_y = SCREEN_HEIGHT - 4;
+
+bool game_over = 0;
+bool paused = 1;  // Paused default status
+bool connect_req = 0;
+bool game_req=0;
+bool ISR=0;
+
+
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,6 +97,8 @@ void game_control(void);
 void reset_game(void);
 void update_game(void);
 void send_game_state(void);
+
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -75,31 +106,58 @@ void send_game_state(void);
 
 /* USER CODE END 0 */
 
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int  SCREEN_WIDTH = 16;
-int const SCREEN_HEIGHT = 32;
-int PLATFORM_WIDTH = 4;
 
-float ball_x = 8;
-float ball_y = 8;
-float ball_dx = 0.5;
-float ball_dy = 0.5;
 
-float platform_x = 6;
-float platform_y = SCREEN_HEIGHT - 4;
-bool game_over = 0;
-bool paused = 1;  // Paused default status
-int game_type = 0;  // 0 - Pong, 1 - Snake
-bool connect_req = 0;
-bool game_req=0;
-bool ISR=0;
+void EraseData(){
+	
+	
+	HAL_FLASH_Unlock();
+	
+	
+	uint32_t FlashEraseFault=0;
+	FLASH_EraseInitTypeDef FlashEraseDef;
+	FlashEraseDef.TypeErase =  FLASH_TYPEERASE_PAGES;
+	FlashEraseDef.PageAddress = FLASH_CONFIG_START_ADDR;
+	FlashEraseDef.NbPages = 1;
+	
+	HAL_FLASHEx_Erase(&FlashEraseDef, &FlashEraseFault);
+	
+	
+	
+	HAL_FLASH_Lock();
+	
+}
 
-//Massive
-uint8_t msg_rx[16];
-uint8_t msg_tx[128];
+void FlashData(uint16_t score ){
+	
+	
+		HAL_FLASH_Unlock();
+		HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, FLASH_CONFIG_START_ADDR, score);
+		HAL_FLASH_Lock();	
+	
+	
+	
+	
+}
+
+
+
+void ReadData(){
+	HAL_FLASH_Unlock();
+	scorebuf[0]  = *(__IO uint8_t*)(FLASH_CONFIG_START_ADDR);
+	HAL_FLASH_Lock();
+	
+}
+
+
+void GetBsScore(uint16_t score){
+	ReadData();
+ if(score> scorebuf[0]){
+	 EraseData();
+	 FlashData(score); 
+ }
+	
+}
 
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){ 
@@ -113,7 +171,6 @@ int main(void) {
 	  HAL_Init();
     SystemClock_Config();
     MX_USART1_UART_Init();
-
 		HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
     while (1) {
 			if(ISR){		
@@ -422,6 +479,9 @@ void reset_game() { // GAME RESET ----------------------------------------------
     ball_y = 8;
     platform_x = 6;
     platform_y = SCREEN_HEIGHT - 4;
+
+		GetBsScore(score);
+	  score=0;
     game_over = 0;
 }
 
@@ -440,6 +500,7 @@ void update_game() { // UPDATE GAME STATE --------------------------------------
         }
 
         if (ball_y == (platform_y) && ball_x >= platform_x && ball_x < platform_x + PLATFORM_WIDTH) {
+					  score++;
             ball_dy = -ball_dy;
         }
 
