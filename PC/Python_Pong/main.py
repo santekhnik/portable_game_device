@@ -21,7 +21,7 @@ BLACK = (0, 0, 0)
 BALL_COLOR = (0, 196, 156)
 PLATFORM_COLOR = (118, 0, 196)
 FONT = pygame.font.Font(font_path, 36)
-FONT2 = pygame.font.Font(font_path, 24)
+FONT2 = pygame.font.Font(font_path, 22)
 FONT3 = pygame.font.Font(font_path, 15)
 pause = 0
 height = 0
@@ -112,8 +112,6 @@ def show_error_message(message, ser=None):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                menu_music.stop()
-                game_music.stop()
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
@@ -334,24 +332,26 @@ def draw_game(ball, platform, score, best_score):
         (((platform * 9) + 3) + i * 10) + 70, platform_y_position - 443, platform_width, platform_height))
 
     # Додаємо текст під ігровим полем
-
     text = FONT2.render("Controls:", True, WHITE)
-    text_rect = text.get_rect(center=(WIDTH // 2, 490))
+    text_rect = text.get_rect(center=(WIDTH // 2, 480))
+    screen.blit(text, text_rect)
+    text = FONT2.render("Space - start game", True, WHITE)
+    text_rect = text.get_rect(center=(WIDTH // 2, 500))
     screen.blit(text, text_rect)
     text = FONT2.render("A - left", True, WHITE)
-    text_rect = text.get_rect(center=(WIDTH // 2, 515))
+    text_rect = text.get_rect(center=(WIDTH // 2, 520))
     screen.blit(text, text_rect)
     text = FONT2.render("D - right", True, WHITE)
     text_rect = text.get_rect(center=(WIDTH // 2, 540))
     screen.blit(text, text_rect)
     text = FONT2.render("P - pause", True, WHITE)
-    text_rect = text.get_rect(center=(WIDTH // 2, 565))
+    text_rect = text.get_rect(center=(WIDTH // 2, 560))
     screen.blit(text, text_rect)
     text = FONT2.render("R - restart", True, WHITE)
-    text_rect = text.get_rect(center=(WIDTH // 2, 590))
+    text_rect = text.get_rect(center=(WIDTH // 2, 580))
     screen.blit(text, text_rect)
     text = FONT2.render("ESC - Exit", True, WHITE)
-    text_rect = text.get_rect(center=(WIDTH // 2, 615))
+    text_rect = text.get_rect(center=(WIDTH // 2, 600))
     screen.blit(text, text_rect)
     score_text = FONT.render(f"Score: {score}", True, WHITE)
     score_rect = score_text.get_rect(center=(WIDTH // 2, 33))
