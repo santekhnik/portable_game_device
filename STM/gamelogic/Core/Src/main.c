@@ -21,6 +21,8 @@
 #include "stm32f0xx_hal.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include "math.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -29,7 +31,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+#define FLASH_CONFIG_START_ADDR 	((uint32_t)0x0800F400)
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -49,15 +51,61 @@ DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
 
+//RX_TX_FLASH
+uint8_t msg_rx[16];
+uint8_t msg_tx[128];
+
+uint8_t scorebuf[1];
+
+// GAME PARAMETERS
+int  SCREEN_WIDTH = 20;
+int const SCREEN_HEIGHT = 40;
+int PLATFORM_WIDTH = 5;
+uint16_t score =0;
+
+
+float ball_x = 8;
+float ball_y = 8;
+float ball_dx = 0.5;
+float ball_dy = 0.5;
+float platform_x = 6;
+float platform_y = SCREEN_HEIGHT - 4;
+
+bool game_over = 0;
+bool paused = 1;  // Paused default status
+bool connect_req = 0;
+bool game_req=0;
+bool ISR=0; // INTERRUPT FLAG
+uint8_t count = 0;
+int delay = 50;
+
+
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
+
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART1_UART_Init(void);
-/* USER CODE BEGIN PFP */
 
+/* USER CODE BEGIN PFP */
+int Get_float(float number);
+int calculateBCC(uint8_t *data, int length, bool get);
+void Check_Protocol();
+void game_control(void);
+void reset_game(void);
+void update_game(void);
+void send_game_state(void);
+
+void EraseData();
+void FlashData(uint16_t score);
+void ReadData();
+void GetBsScore(uint16_t score);
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -65,108 +113,40 @@ static void MX_USART1_UART_Init(void);
 
 /* USER CODE END 0 */
 
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-#define SCREEN_WIDTH  16
-#define SCREEN_HEIGHT 32
-#define PLATFORM_WIDTH 4
-
-float ball_x = 8;
-float ball_y = 8;
-float ball_dx = 1;
-float ball_dy = 1;
-
-float platform_x = 6;
-float platform_y = SCREEN_HEIGHT - 4;
-int game_over = 0;
-int paused = 0;  // Paused default status
-int game_type = 0;  // 0 - Pong, 1 - Snake
-
-uint8_t msg_rx[1];
-uint8_t msg_tx[128];
-
-void reset_game() {
-    ball_x = 8;
-    ball_y = 8;
-    platform_x = 6;
-    platform_y = SCREEN_HEIGHT - 4;
-    game_over = 0;
-}
-
-void update_game() {
-    if (!game_over) {
-        ball_x += ball_dx;
-        ball_y += ball_dy;
-
-        if (ball_x <= 1 || ball_x >= SCREEN_WIDTH - 2) {
-            ball_dx = -ball_dx;
-        }
-        if (ball_y <= 1) {
-            ball_dy = -ball_dy;
-        }
-
-        if (ball_y == (platform_y) && ball_x >= platform_x && ball_x < platform_x + PLATFORM_WIDTH) {
-            ball_dy = -ball_dy;
-        }
-
-        if (ball_y > (platform_y)) {
-            game_over = 1;
-        }
-    } else {
-        // Restart the game if it's over
-        reset_game();
-    }
-}
-
-void send_game_state() {
-    HAL_UART_Transmit(&huart1, msg_tx, sprintf((char *)msg_tx, "{\"ball\": [%f, %f], \"platform\": [%f]}\r\n", ball_x, ball_y, platform_x), 0xFFFF);
-}
 
 
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-         if (msg_rx[0] == 'a' && !paused && platform_x > 1) {
-            platform_x -= 1;
-				 }
-				 else if (msg_rx[0] == 'd' && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
-            platform_x += 1;
-        }
-				 else if ((msg_rx[0] == 'r') && !paused ){
-					  reset_game();}
-				 else if (msg_rx[0] == 'p'){
-					  paused = !paused; // Toggle pause state
-					 }
-				 
-        HAL_UART_Receive_IT(&huart1, msg_rx, 1);
-    }
 
+//  ----------------------------------------------------------------------- S_MAIN -----------------------------------------------------------------------
 int main(void) {
-    HAL_Init();
+	  HAL_Init();
     SystemClock_Config();
     MX_USART1_UART_Init();
-    HAL_UART_Receive_IT(&huart1, msg_rx, 1);
-    
-    while (game_type == 0 && game_type == 1) {
-        HAL_Delay(150); 
-    }
-
     while (1) {
-			if(paused){
-					HAL_UART_Receive_IT(&huart1, msg_rx, 1);
+			if(ISR){		
+				Check_Protocol();
+				ISR=0;
 			}
-        	else if (!paused) {
-            update_game();
-            send_game_state();
-					HAL_Delay(50);
-        }
+			else{
+				HAL_UARTEx_ReceiveToIdle_IT(&huart1, msg_rx, 16);
+			}
 			
+			if(!paused) {
+        send_game_state();
+				update_game();
+				HAL_Delay(delay);
+     }
 
-    
 }
 
 }
+
+// --------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+// ----------------------------------------------------------------------- S_STM -----------------------------------------------------------------------
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -278,9 +258,347 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_2 */
 }
 
-/* USER CODE BEGIN 4 */
 
-/* USER CODE END 4 */
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+/* //  ----------------------------------------------------------------------- FUNCTIONS -----------------------------------------------------------------------  */
+
+void Check_Protocol(){ // Protocol --------------------------------------------------------------------------------
+
+	switch((int)msg_rx[0]){
+		 
+		 
+		 
+		case(0x01): // MENU SELECT
+
+				if(calculateBCC(msg_rx, 3, 0 ) && !(int)msg_rx[1]){
+						msg_tx[0]=0x01;
+						msg_tx[1]=0x01;
+						msg_tx[2]=0x14;
+						msg_tx[3]=calculateBCC(msg_tx, 4,1);
+			      HAL_UART_Transmit_IT(&huart1, msg_tx, 4);
+			      }
+				else{
+						msg_tx[0]=0x01;
+						msg_tx[1]=0xFF;
+						msg_tx[2]=0xFF;
+						msg_tx[3]=calculateBCC(msg_tx, 4,1);		
+						HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);}
+			break;
+		
+		case(0x02): // GAME SELECT
+
+		    if(calculateBCC(msg_rx, 5, 0 )){ // CHECK CORRECT BCC	
+					
+					
+					if(((int)msg_rx[1] == 0x0E) &&( !(int)msg_rx[2] && !(int)msg_rx[3]))  {// PC choosing game (XX-number of game)--------------------------
+						msg_tx[0]=0x02;
+						msg_tx[1]=0x0E;
+						msg_tx[2]=SCREEN_WIDTH;
+						msg_tx[3]=SCREEN_HEIGHT;
+						msg_tx[4] =calculateBCC(msg_tx, 5,1);	
+						HAL_UART_Transmit(&huart1,msg_tx,5,0xFFFF);
+					  
+					  
+						
+									 
+					}
+					else if((int)msg_rx[1] != 0x0E){ // NOT CORRECT GAME 
+						msg_tx[0]=0x02;
+						msg_tx[1]=0xDD;
+						msg_tx[2]=0xFF;
+						msg_tx[3]=calculateBCC(msg_tx, 4,1);
+			      HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);
+					}
+			
+					}
+				else {    // BCC ERROR
+					
+						msg_tx[0]=0x02;
+						msg_tx[1]=0xFF;
+						msg_tx[2]=0xFF;
+						msg_tx[3]=calculateBCC(msg_tx, 4,1);
+			      HAL_UART_Transmit(&huart1, msg_tx, 4 , 0xFFFF);				
+				}
+				
+			break;	
+		
+		
+		
+
+		case(0x04):
+			game_control(); //recive control key
+			
+			break;
+			
+			
+		
+
+		
+
+	
+		break;
+ }
+}
+
+
+int Get_float(float number){ // FIXED POINT NUMBER GET _-----------------------------------------------------------
+    return ((int)number==number) ?  (( (int)number << 1 ) | 0) : (( (int)number << 1 ) | 1) ;
+};
+
+
+
+int calculateBCC(uint8_t *data, int length, bool get) {// BCC CALCULATION 1-true 0-false	
+	
+   int checksum = 0;
+	if(!get){
+			
+    for (int i = 0; i < length-1; i++)
+    {
+        checksum ^= (int)data[i];
+	
+
+				
+    }
+	
+		if(	checksum == data[length-1]){
+    return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else if(get) {
+
+		  for (int i = 0; i < length-1; i++)
+    {
+        checksum ^= (int)data[i];
+			
+    }
+
+	
+
+	
+		
+	}
+		return checksum;
+}
+
+
+void game_control(){ // GET KEY FROM USERS ---------------------------------------
+	  // if 'a' is pressed
+		if ((int)msg_rx[1] == 141 && !paused && platform_x > 1) {
+            platform_x -= 2;
+			}
+		// if 'd' is pressed
+		else if ((int)msg_rx[1] == 144 && !paused && platform_x < SCREEN_WIDTH - PLATFORM_WIDTH - 1) {
+            platform_x += 2;
+      }
+		// if 'r' is pressed
+		else if (((int)msg_rx[1] == 162) && !paused ){
+						reset_game();
+						send_game_state();
+						paused =1 ;
+			}
+		// if 'p' is pressed
+		else if ((int)msg_rx[1] == 160){
+						paused = 1; // Toggle pause state
+			}
+		// if SPACE is pressed
+		else if((int)msg_rx[1] ==13){
+						paused = 0;
+      }
+		// if ESC is pressed
+		else if ((int)msg_rx[1] == 33){		
+						msg_tx[0]=0x01;
+						msg_tx[1]=0x01;
+						msg_tx[2]=0x14;
+						msg_tx[3]=calculateBCC(msg_tx, 4,1);
+							
+						HAL_UART_Transmit(&huart1, msg_tx, 4, 0xFFFF);
+						paused = 1;
+		}
+
+									 
+}
+
+
+
+
+
+
+
+void reset_game() { // GAME RESET ------------------------------------------------
+    ball_x = 8;
+    ball_y = 8;
+    platform_x = 6;
+    platform_y = SCREEN_HEIGHT - 4;
+		delay = 50;
+		GetBsScore(score);
+	  score=0;
+    game_over = 0;
+}
+
+
+
+void update_game() { // UPDATE GAME STATE ----------------------------------------
+    if (!game_over) {
+        ball_x += ball_dx;
+        ball_y += ball_dy;
+
+        if (ball_x <= 1 || ball_x >= SCREEN_WIDTH - 2) {
+            ball_dx = -ball_dx;
+        }
+        if (ball_y <= 1) {
+            ball_dy = -ball_dy;
+        }
+
+        if (ball_y == (platform_y) && ball_x >= platform_x && ball_x < platform_x + PLATFORM_WIDTH) {
+					  score++;
+						if(count >= 5){
+							delay -= 5;
+							count = 0;
+						}
+						else count ++;
+            ball_dy = -ball_dy;
+        }
+
+        if (ball_y > (platform_y)) {
+            game_over = 1;
+        }
+    } else {
+        reset_game();
+    }
+}
+
+
+
+
+
+void send_game_state() { // SEND COORDINATES -------------------------------------
+    				ReadData();
+						msg_tx[0]=0x03;
+						msg_tx[1]=Get_float(ball_x);
+						msg_tx[2]=Get_float(ball_y);
+	          msg_tx[3]=platform_x;
+	          msg_tx[4]=platform_y;
+						msg_tx[5]=score;	
+						msg_tx[6]=(int)scorebuf[0];
+	          msg_tx[7]=calculateBCC(msg_tx, 8,1);
+						HAL_UART_Transmit(&huart1, msg_tx, 8, 0xFFFF);
+		       
+	        
+}
+
+
+
+void EraseData(){// ERASE DATA FROM STM MEMORY ---------------------------------
+	
+	
+	HAL_FLASH_Unlock();
+	
+	
+	uint32_t FlashEraseFault=0;
+	FLASH_EraseInitTypeDef FlashEraseDef;
+	FlashEraseDef.TypeErase =  FLASH_TYPEERASE_PAGES;
+	FlashEraseDef.PageAddress = FLASH_CONFIG_START_ADDR;
+	FlashEraseDef.NbPages = 1;
+	
+	HAL_FLASHEx_Erase(&FlashEraseDef, &FlashEraseFault);
+	
+	
+	
+	HAL_FLASH_Lock();
+	
+}
+
+void FlashData(uint16_t score ){// SAVE DATA TO STM MEMORY ---------------------
+	
+		HAL_FLASH_Unlock();
+		HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, FLASH_CONFIG_START_ADDR, score);
+		HAL_FLASH_Lock();	
+}
+
+
+
+void ReadData(){ // READ DATA FROM STM MEMORY ----------------------------------
+	
+	HAL_FLASH_Unlock();
+	scorebuf[0]  = *(__IO uint8_t*)(FLASH_CONFIG_START_ADDR);
+	HAL_FLASH_Lock();
+}
+
+
+void GetBsScore(uint16_t score){ // READ BEST SCORE FROM STM MEMORY ------------
+	
+	ReadData();
+	if(score> scorebuf[0]){
+		EraseData();
+		FlashData(score); 
+	}
+}
+
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){ // CHECK IF INTERRUPT HAS OCCURED
+
+	ISR=1; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///* //  ----------------------------------------------------------------------- CONFIGURATION -----------------------------------------------------------------------  
+
 
 /**
   * @brief  This function is executed in case of error occurrence.
