@@ -119,11 +119,8 @@ def show_error_message(message, ser=None):
                     menu_music.stop()
                     game_music.stop()
                     ser.close()
-<<<<<<< HEAD
-=======
                 menu_music.stop()
                 game_music.stop()
->>>>>>> alpha1.0
                 main()
 
 
@@ -322,7 +319,7 @@ def draw_game(ball, platform, score, best_score):
     ball_size = max(10, min(WIDTH, HEIGHT) // 50)  # Динамічний розмір м'яча
     ball_x = offset_x + (game_width - ball_size * len(ball)) // 6 + ball[0] * ball_size
     ball_y = offset_y + (game_height - ball_size * len(ball)) // 15 + ball[1] * ball_size
-    pygame.draw.rect(screen, BALL_COLOR, (ball_x, ball_y, ball_size, ball_size))
+    pygame.draw.rect(screen, WHITE, (ball_x, ball_y, ball_size, ball_size))
 
     # Малюємо платформу
     platform_width = ball_size  # Ширина сегмента платформи відповідає розміру м'яча
@@ -331,7 +328,7 @@ def draw_game(ball, platform, score, best_score):
                 game_height - platform_height) // 2 + game_height - platform_height - border_thickness  # Позиція платформи
 
     for i in range(5):  # Платформа з 4-х сегментів6
-        pygame.draw.rect(screen, PLATFORM_COLOR, (
+        pygame.draw.rect(screen, WHITE, (
         (((platform * 9) + 3) + i * 10) + 70, platform_y_position - 443, platform_width, platform_height))
 
     # Додаємо текст під ігровим полем
@@ -368,11 +365,7 @@ def draw_game(ball, platform, score, best_score):
 def main():
     global pause
 
-<<<<<<< HEAD
-    menu_music.play()
-=======
     menu_music.play(loops=-1)
->>>>>>> alpha1.0
     com_port = select_com_port()
     if not com_port:
         return
@@ -389,11 +382,7 @@ def main():
         main()
     if game:
         menu_music.stop()
-<<<<<<< HEAD
-        game_music.play()
-=======
         game_music.play(loops=-1)
->>>>>>> alpha1.0
         send_initial_command(ser)  # Відправка першої команди для старту гри
         while True:
             try:
@@ -470,11 +459,7 @@ def main():
                             ser.close()
                             return
                         elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-<<<<<<< HEAD
-                            game_music.play()
-=======
                             game_music.play(loops=-1)
->>>>>>> alpha1.0
                             BCC = calculate_bcc([0x04, 13])
                             packet = bytes([0x04, 13, BCC])
                             ser.write(packet)
