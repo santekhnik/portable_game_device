@@ -76,6 +76,11 @@ bool paused = 1;  // Paused default status
 bool connect_req = 0;
 bool game_req=0;
 bool ISR=0; // INTERRUPT FLAG
+<<<<<<< HEAD
+=======
+uint8_t count = 0;
+int delay = 50;
+>>>>>>> alpha1.0
 
 
 
@@ -120,7 +125,10 @@ int main(void) {
 	  HAL_Init();
     SystemClock_Config();
     MX_USART1_UART_Init();
+<<<<<<< HEAD
 		
+=======
+>>>>>>> alpha1.0
     while (1) {
 			if(ISR){		
 				Check_Protocol();
@@ -133,7 +141,11 @@ int main(void) {
 			if(!paused) {
         send_game_state();
 				update_game();
+<<<<<<< HEAD
 				HAL_Delay(50);
+=======
+				HAL_Delay(delay);
+>>>>>>> alpha1.0
      }
 
 }
@@ -442,7 +454,11 @@ void reset_game() { // GAME RESET ----------------------------------------------
     ball_y = 8;
     platform_x = 6;
     platform_y = SCREEN_HEIGHT - 4;
+<<<<<<< HEAD
 
+=======
+		delay = 50;
+>>>>>>> alpha1.0
 		GetBsScore(score);
 	  score=0;
     game_over = 0;
@@ -464,6 +480,14 @@ void update_game() { // UPDATE GAME STATE --------------------------------------
 
         if (ball_y == (platform_y) && ball_x >= platform_x && ball_x < platform_x + PLATFORM_WIDTH) {
 					  score++;
+<<<<<<< HEAD
+=======
+						if(count >= 5){
+							delay -= 5;
+							count = 0;
+						}
+						else count ++;
+>>>>>>> alpha1.0
             ball_dy = -ball_dy;
         }
 

@@ -119,6 +119,11 @@ def show_error_message(message, ser=None):
                     menu_music.stop()
                     game_music.stop()
                     ser.close()
+<<<<<<< HEAD
+=======
+                menu_music.stop()
+                game_music.stop()
+>>>>>>> alpha1.0
                 main()
 
 
@@ -363,7 +368,11 @@ def draw_game(ball, platform, score, best_score):
 def main():
     global pause
 
+<<<<<<< HEAD
     menu_music.play()
+=======
+    menu_music.play(loops=-1)
+>>>>>>> alpha1.0
     com_port = select_com_port()
     if not com_port:
         return
@@ -380,7 +389,11 @@ def main():
         main()
     if game:
         menu_music.stop()
+<<<<<<< HEAD
         game_music.play()
+=======
+        game_music.play(loops=-1)
+>>>>>>> alpha1.0
         send_initial_command(ser)  # Відправка першої команди для старту гри
         while True:
             try:
@@ -457,7 +470,11 @@ def main():
                             ser.close()
                             return
                         elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+<<<<<<< HEAD
                             game_music.play()
+=======
+                            game_music.play(loops=-1)
+>>>>>>> alpha1.0
                             BCC = calculate_bcc([0x04, 13])
                             packet = bytes([0x04, 13, BCC])
                             ser.write(packet)
